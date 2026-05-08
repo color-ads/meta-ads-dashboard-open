@@ -1,144 +1,204 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Open C60 · Panel de Leads</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --navy:    #0F1E3C;
-      --navy2:   #1a2f52;
-      --blue:    #2563EB;
-      --blue-lt: #EFF6FF;
-      --green:   #059669;
-      --bg:      #F4F6FA;
-      --card:    #FFFFFF;
-      --border:  #E5E7EB;
-      --text:    #111827;
-      --text2:   #6B7280;
-      --text3:   #9CA3AF;
-      --r:       14px;
-      --sh:      0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.05);
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#0F1E3C;--navy2:#162d54;--blue:#2563EB;--blue-lt:#EFF6FF;
+      --green:#059669;--green-lt:#ECFDF5;
+      --bg:#F1F4F9;--card:#fff;--border:#E2E8F0;
+      --text:#0F172A;--text2:#64748B;--text3:#94A3B8;
+      --r:12px;--sh:0 1px 3px rgba(15,30,60,.06),0 4px 16px rgba(15,30,60,.05);
     }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-    /* Setup */
-    .sw { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem; background:var(--navy); }
-    .sl { color:#fff; font-size:30px; font-weight:700; letter-spacing:-.5px; margin-bottom:4px; }
-    .ss { color:rgba(255,255,255,.4); font-size:13px; margin-bottom:2.5rem; letter-spacing:.5px; text-transform:uppercase; }
-    .sc { background:#fff; border-radius:var(--r); padding:2rem; width:100%; max-width:400px; }
-    .sc h2 { font-size:15px; font-weight:600; color:var(--navy); margin-bottom:1.5rem; }
-    .fi { margin-bottom:14px; }
-    .fi label { display:block; font-size:11px; font-weight:600; color:var(--text2); margin-bottom:5px; text-transform:uppercase; letter-spacing:.5px; }
-    .fi input { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; transition:border-color .2s; }
-    .fi input:focus { outline:none; border-color:var(--blue); }
-    .fi .hint { font-size:11px; color:var(--text3); margin-top:4px; }
-    .btn-c { width:100%; padding:12px; background:var(--navy); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; margin-top:6px; transition:background .2s; }
-    .btn-c:hover { background:var(--navy2); }
-    .btn-c:disabled { opacity:.4; cursor:default; }
+    /* ── Setup ── */
+    .sw{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;background:var(--navy)}
+    .s-logo{color:#fff;font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:2px}
+    .s-sub{color:rgba(255,255,255,.4);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:2.5rem}
+    .s-card{background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:390px}
+    .s-card h2{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:1.5rem}
+    .fi{margin-bottom:14px}
+    .fi label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px}
+    .fi input{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;transition:border-color .2s}
+    .fi input:focus{outline:none;border-color:var(--blue)}
+    .fi .hint{font-size:11px;color:var(--text3);margin-top:4px}
+    .btn-c{width:100%;padding:12px;background:var(--navy);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px;transition:opacity .2s}
+    .btn-c:hover{opacity:.88}
+    .btn-c:disabled{opacity:.35;cursor:default}
 
-    /* Topbar */
-    .tb { background:var(--navy); padding:0 2rem; display:flex; align-items:center; justify-content:space-between; height:58px; position:sticky; top:0; z-index:100; }
-    .tb-brand .tb-logo { color:#fff; font-size:17px; font-weight:700; letter-spacing:-.3px; }
-    .tb-brand .tb-sub  { color:rgba(255,255,255,.4); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-top:1px; }
-    .tb-right { display:flex; align-items:center; gap:16px; }
-    .upd { font-size:11px; color:rgba(255,255,255,.38); }
-    .rl-row { display:flex; align-items:center; gap:6px; font-size:11px; color:rgba(255,255,255,.38); }
-    .rl-bar { width:44px; height:4px; border-radius:2px; background:rgba(255,255,255,.12); overflow:hidden; }
-    .rl-fill { height:100%; border-radius:2px; transition:width .4s; }
-    .btn-out { background:rgba(255,255,255,.08); border:none; color:rgba(255,255,255,.6); padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer; }
-    .btn-out:hover { background:rgba(255,255,255,.15); }
+    /* ── Topbar ── */
+    .tb{background:var(--navy);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+    .tb-logo{color:#fff;font-size:16px;font-weight:800;letter-spacing:-.5px}
+    .tb-sub{color:rgba(255,255,255,.38);font-size:10px;text-transform:uppercase;letter-spacing:.8px;margin-top:1px}
+    .tb-r{display:flex;align-items:center;gap:14px}
+    .upd{font-size:11px;color:rgba(255,255,255,.35)}
+    .rl-row{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.35)}
+    .rl-bar{width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden}
+    .rl-fill{height:100%;border-radius:2px;transition:width .4s}
+    .btn-out{background:rgba(255,255,255,.07);border:none;color:rgba(255,255,255,.55);padding:6px 13px;border-radius:7px;font-size:12px;cursor:pointer}
+    .btn-out:hover{background:rgba(255,255,255,.14)}
 
-    /* Tab bar */
-    .tabbar { background:var(--card); border-bottom:1px solid var(--border); padding:0 2rem; display:flex; align-items:center; }
-    .tab { background:none; border:none; border-bottom:2.5px solid transparent; padding:14px 18px; font-size:13px; font-weight:500; color:var(--text2); cursor:pointer; }
-    .tab:hover { color:var(--text); }
-    .tab.on { color:var(--blue); border-bottom-color:var(--blue); }
-    .tab-r { margin-left:auto; }
-    .btn-ref { background:var(--blue-lt); color:var(--blue); border:none; border-radius:8px; padding:7px 14px; font-size:12px; font-weight:500; cursor:pointer; }
-    .btn-ref:hover { opacity:.85; }
-    .btn-ref:disabled { opacity:.4; cursor:default; }
+    /* ── Period bar ── */
+    .pbar{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .pbar-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);white-space:nowrap}
+    .p-group{display:flex;gap:4px;flex-wrap:wrap}
+    .pbtn{background:none;border:1px solid var(--border);border-radius:7px;padding:5px 12px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
+    .pbtn:hover{background:var(--bg)}
+    .pbtn.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+    .psep{width:1px;height:24px;background:var(--border);align-self:center}
+    .yr-sel{border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:12px;color:var(--text);background:var(--bg);cursor:pointer}
+    .yr-sel:focus{outline:none;border-color:var(--blue)}
 
-    /* Main */
-    .main { padding:2rem; max-width:1200px; margin:0 auto; }
+    /* ── Tab bar ── */
+    .tabbar{background:var(--card);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center}
+    .tab{background:none;border:none;border-bottom:2.5px solid transparent;padding:13px 16px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer}
+    .tab:hover{color:var(--text)}
+    .tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+    .tab-r{margin-left:auto}
+    .btn-ref{background:var(--blue-lt);color:var(--blue);border:none;border-radius:7px;padding:6px 13px;font-size:12px;font-weight:600;cursor:pointer}
+    .btn-ref:hover{opacity:.85}
+    .btn-ref:disabled{opacity:.4;cursor:default}
 
-    /* KPI grid */
-    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(155px,1fr)); gap:14px; margin-bottom:2rem; }
-    .kc { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:1.25rem 1.5rem; box-shadow:var(--sh); }
-    .kc.dark { background:var(--navy); border-color:var(--navy); }
-    .kc-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.6px; color:var(--text2); margin-bottom:6px; }
-    .kc.dark .kc-label { color:rgba(255,255,255,.45); }
-    .kc-val { font-size:28px; font-weight:700; letter-spacing:-1px; }
-    .kc.dark .kc-val { color:#fff; }
-    .kc-sub { font-size:11px; color:var(--text3); margin-top:4px; }
-    .kc.dark .kc-sub { color:rgba(255,255,255,.3); }
+    /* ── Main ── */
+    .main{padding:1.5rem;max-width:1200px;margin:0 auto}
 
-    /* Chart card */
-    .ch-card { background:var(--card); border:1px solid var(--border); border-radius:var(--r); box-shadow:var(--sh); padding:1.5rem; margin-bottom:2rem; }
-    .ch-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; }
-    .ch-title { font-size:15px; font-weight:600; }
-    .ch-sub   { font-size:12px; color:var(--text2); margin-top:2px; }
-    .ch-wrap  { position:relative; height:260px; }
+    /* Period label */
+    .period-chip{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;margin-bottom:1.25rem}
+    .period-chip span{color:rgba(255,255,255,.5);font-weight:400}
 
-    /* Table card */
-    .tc { background:var(--card); border:1px solid var(--border); border-radius:var(--r); box-shadow:var(--sh); overflow:hidden; margin-bottom:2rem; }
-    .tc-head { padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); }
-    .tc-title { font-size:15px; font-weight:600; }
-    .tw { overflow-x:auto; }
-    table { width:100%; border-collapse:collapse; font-size:13px; }
-    th { padding:10px 16px; text-align:left; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--text2); background:#FAFAFA; border-bottom:1px solid var(--border); }
-    td { padding:12px 16px; border-bottom:1px solid #F3F4F6; }
-    tr:last-child td { border-bottom:none; }
-    tr:hover td { background:#FAFAFA; }
-    .r { text-align:right; }
-    .td-m { font-weight:600; }
-    .td-l { font-weight:700; color:var(--green); font-size:14px; }
-    .td-n { font-family:'Courier New',monospace; }
-    .badge { display:inline-block; font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; }
+    /* ── KPI grid ── */
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:1.5rem}
+    .kc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.25rem;box-shadow:var(--sh)}
+    .kc.hl{background:var(--navy);border-color:var(--navy)}
+    .kc-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);margin-bottom:5px}
+    .kc.hl .kc-lbl{color:rgba(255,255,255,.4)}
+    .kc-val{font-size:26px;font-weight:800;letter-spacing:-1px;color:var(--text)}
+    .kc.hl .kc-val{color:#fff}
+    .kc-sub{font-size:11px;color:var(--text3);margin-top:3px}
+    .kc.hl .kc-sub{color:rgba(255,255,255,.28)}
 
-    /* States */
-    .loading { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:4rem; color:var(--text2); gap:12px; font-size:14px; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    .spin { width:22px; height:22px; border:2.5px solid var(--border); border-top-color:var(--blue); border-radius:50%; animation:spin .7s linear infinite; }
-    .err { background:#FEF2F2; border:1px solid #FECACA; border-radius:10px; padding:12px 16px; font-size:13px; color:#B91C1C; margin-bottom:1rem; }
-    .empty { text-align:center; padding:3rem; color:var(--text2); font-size:14px; }
-    .foot { text-align:center; padding:2rem; font-size:11px; color:var(--text3); }
+    /* ── Chart ── */
+    .ch-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);padding:1.25rem 1.5rem;margin-bottom:1.5rem}
+    .ch-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem;flex-wrap:wrap;gap:8px}
+    .ch-title{font-size:14px;font-weight:700}
+    .ch-sub{font-size:12px;color:var(--text2);margin-top:2px}
+    .ch-wrap{position:relative;height:240px}
 
-    @media(max-width:600px){
-      .main{padding:1rem} .tb{padding:0 1rem} .tabbar{padding:0 .5rem}
-      .kc-val{font-size:22px} .upd{display:none}
+    /* ── Table ── */
+    .tc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:1.5rem}
+    .tc-head{padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+    .tc-title{font-size:14px;font-weight:700}
+    .tw{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{padding:9px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);background:#F8FAFC;border-bottom:1px solid var(--border)}
+    td{padding:11px 14px;border-bottom:1px solid #F1F5F9}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#FAFBFC}
+    .r{text-align:right}
+    .td-per{font-weight:700;color:var(--text)}
+    .td-leads{font-weight:800;color:var(--green);font-size:15px}
+    .td-n{font-family:'SF Mono','Courier New',monospace;font-size:12px}
+    .badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+
+    /* ── States ── */
+    .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem;color:var(--text2);gap:10px;font-size:13px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .spin{width:20px;height:20px;border:2.5px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+    .err{background:#FEF2F2;border:1px solid #FECACA;border-radius:9px;padding:11px 14px;font-size:13px;color:#B91C1C;margin-bottom:1rem}
+    .empty{text-align:center;padding:3rem;color:var(--text2);font-size:14px}
+    .foot{text-align:center;padding:1.5rem;font-size:11px;color:var(--text3)}
+
+    /* Campaigns */
+    .camp-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+
+    @media(max-width:640px){
+      .main{padding:1rem}.tb{padding:0 1rem}.pbar{padding:.75rem 1rem}.tabbar{padding:0 1rem}
+      .kc-val{font-size:22px}.upd{display:none}
     }
   </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-const API="https://graph.facebook.com/v21.0", THROTTLE=300, WARN=75, STOP=92, SINCE="2025-01-01";
-const MES=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+// ── Constants ───────────────────────────────────────────────────────────────
+const API="https://graph.facebook.com/v21.0",THROTTLE=300,WARN=75,STOP=92;
+const MES_C=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 const MES_F=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-const ST={ACTIVE:{l:"Activa",bg:"#DCFCE7",c:"#166534"},PAUSED:{l:"Pausada",bg:"#FEF9C3",c:"#854D0E"},ARCHIVED:{l:"Archivada",bg:"#F3F4F6",c:"#4B5563"},DELETED:{l:"Eliminada",bg:"#FEE2E2",c:"#991B1B"},CAMPAIGN_PAUSED:{l:"Camp. pausada",bg:"#FEF9C3",c:"#854D0E"},PENDING_REVIEW:{l:"En revisión",bg:"#DBEAFE",c:"#1E40AF"},DISAPPROVED:{l:"Rechazada",bg:"#FEE2E2",c:"#991B1B"},WITH_ISSUES:{l:"Con problemas",bg:"#FEE2E2",c:"#991B1B"}};
-const OBJ={OUTCOME_LEADS:"Leads",OUTCOME_SALES:"Ventas",OUTCOME_TRAFFIC:"Tráfico",OUTCOME_ENGAGEMENT:"Engagement",LEAD_GENERATION:"Generación de leads",OUTCOME_AWARENESS:"Reconocimiento"};
+const ST_LABEL={ACTIVE:"Activa",PAUSED:"Pausada",ARCHIVED:"Archivada",DELETED:"Eliminada",CAMPAIGN_PAUSED:"Camp. pausada",PENDING_REVIEW:"En revisión",DISAPPROVED:"Rechazada",WITH_ISSUES:"Con problemas"};
+const ST_STYLE={ACTIVE:{bg:"#DCFCE7",c:"#166534"},PAUSED:{bg:"#FEF9C3",c:"#854D0E"},ARCHIVED:{bg:"#F1F5F9",c:"#475569"},DELETED:{bg:"#FEE2E2",c:"#991B1B"},CAMPAIGN_PAUSED:{bg:"#FEF9C3",c:"#854D0E"},PENDING_REVIEW:{bg:"#DBEAFE",c:"#1E40AF"},DISAPPROVED:{bg:"#FEE2E2",c:"#991B1B"},WITH_ISSUES:{bg:"#FEE2E2",c:"#991B1B"}};
+const OBJ_MAP={OUTCOME_LEADS:"Leads",OUTCOME_SALES:"Ventas",OUTCOME_TRAFFIC:"Tráfico",OUTCOME_ENGAGEMENT:"Engagement",LEAD_GENERATION:"Generación de leads",OUTCOME_AWARENESS:"Reconocimiento"};
 
-const fn=n=>n==null?"—":Number(n).toLocaleString("es-MX");
+// ── Helpers ─────────────────────────────────────────────────────────────────
+const fn=n=>n==null?"—":Number(Math.round(n)).toLocaleString("es-MX");
 const fp=n=>n==null?"—":parseFloat(n).toFixed(2)+"%";
 const fd=s=>s?new Date(s).toLocaleDateString("es-MX"):"—";
-const fNow=()=>{const d=new Date();return d.toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"})+" · "+d.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});};
 const esc=s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const padZ=n=>String(n).padStart(2,"0");
+const fmtD=d=>`${d.getFullYear()}-${padZ(d.getMonth()+1)}-${padZ(d.getDate())}`;
 
-function leads(actions){
+// ── Lead extraction — SINGLE primary action only (no double count) ──────────
+function extractLeads(actions){
   if(!actions||!Array.isArray(actions))return 0;
-  const t=["lead","offsite_conversion.fb_pixel_lead","onsite_conversion.lead_grouped","onsite_conversion.messaging_conversation_started_7d"];
-  return actions.filter(a=>t.includes(a.action_type)).reduce((s,a)=>s+parseInt(a.value||0),0);
+  const a=actions.find(x=>x.action_type==="lead");
+  return a?parseInt(a.value||0):0;
 }
 
-let S={screen:"setup",token:"",rawId:"",tab:"perf",rl:{app:0,acct:0},monthly:null,campaigns:null,loading:false,error:null,updAt:null};
-let lastT=0, chart=null;
+// ── Period helpers ──────────────────────────────────────────────────────────
+function today(){return fmtD(new Date());}
+function thisMonday(){const d=new Date(),day=d.getDay()||7;d.setDate(d.getDate()-day+1);return fmtD(d);}
+function lastMonday(){const d=new Date(thisMonday());d.setDate(d.getDate()-7);return fmtD(d);}
+function lastSunday(){const d=new Date(thisMonday());d.setDate(d.getDate()-1);return fmtD(d);}
+function monthStart(y,m){return`${y}-${padZ(m+1)}-01`;}
+function monthEnd(y,m){return fmtD(new Date(y,m+1,0));}
 
+function buildPeriod(key){
+  const now=new Date(),cy=now.getFullYear(),cm=now.getMonth();
+  if(key==="this_week") return{since:thisMonday(),until:today(),inc:"7",label:"Esta semana"};
+  if(key==="last_week") return{since:lastMonday(),until:lastSunday(),inc:"7",label:"Semana pasada"};
+  if(key==="this_month") return{since:monthStart(cy,cm),until:today(),inc:"7",label:MES_F[cm]+" "+cy};
+  if(key==="last_month"){const lm=cm===0?11:cm-1,ly=cm===0?cy-1:cy;return{since:monthStart(ly,lm),until:monthEnd(ly,lm),inc:"7",label:MES_F[lm]+" "+ly};}
+  // "YYYY-MM" → specific month
+  if(/^\d{4}-\d{2}$/.test(key)){
+    const[y,m]=[parseInt(key.slice(0,4)),parseInt(key.slice(5,7))-1];
+    return{since:monthStart(y,m),until:monthEnd(y,m),inc:"7",label:MES_F[m]+" "+y};
+  }
+  // "YYYY" → full year
+  if(/^\d{4}$/.test(key)){
+    const y=parseInt(key);
+    const until=y===cy?today():monthEnd(y,11);
+    return{since:`${y}-01-01`,until,inc:"monthly",label:"Año "+y};
+  }
+  return{since:"2025-01-01",until:today(),inc:"monthly",label:"Todo (desde ene 2025)"};
+}
+
+function availableMonths(){
+  const months=[];
+  const now=new Date(),cy=now.getFullYear(),cm=now.getMonth();
+  for(let y=2025;y<=cy;y++){
+    const maxM=y===cy?cm:11;
+    for(let m=0;m<=maxM;m++) months.push({key:`${y}-${padZ(m+1)}`,label:MES_C[m]+" '"+String(y).slice(2)});
+  }
+  return months.reverse();
+}
+
+// ── State ────────────────────────────────────────────────────────────────────
+let S={
+  screen:"setup",token:"",rawId:"",tab:"perf",
+  rl:{app:0,acct:0},
+  periodKey:"this_month",
+  data:null,campaigns:null,
+  loading:false,error:null,updAt:null,
+};
+let lastT=0,chart=null;
 const set=p=>{S={...S,...p};render();};
 const aid=()=>S.rawId?"act_"+S.rawId.replace(/^act_/,""):"";
 
+// ── API ──────────────────────────────────────────────────────────────────────
 function readH(h){
   try{
     const a=JSON.parse(h.get("x-app-usage")||"{}"),b=JSON.parse(h.get("x-ad-account-usage")||"{}");
@@ -146,8 +206,7 @@ function readH(h){
     S.rl={app:Math.round(app),acct:Math.round(acct)};return Math.max(app,acct);
   }catch{return 0;}
 }
-
-async function api(path,params={}){
+async function callAPI(path,params={}){
   const w=THROTTLE-(Date.now()-lastT);if(w>0)await new Promise(r=>setTimeout(r,w));lastT=Date.now();
   const u=new URL(API+"/"+path);u.searchParams.set("access_token",S.token);
   for(const[k,v]of Object.entries(params))u.searchParams.set(k,v);
@@ -158,152 +217,292 @@ async function api(path,params={}){
 }
 
 async function loadPerf(){
-  set({loading:true,error:null});
-  const today=new Date().toISOString().split("T")[0];
+  set({loading:true,error:null,data:null});
+  const p=buildPeriod(S.periodKey);
   try{
-    const d=await api(aid()+"/insights",{fields:"impressions,clicks,ctr,reach,frequency,actions",time_range:JSON.stringify({since:SINCE,until:today}),time_increment:"monthly",level:"account",limit:50});
-    set({loading:false,monthly:d.data||[],updAt:fNow()});
+    const d=await callAPI(aid()+"/insights",{
+      fields:"impressions,clicks,ctr,reach,frequency,actions",
+      time_range:JSON.stringify({since:p.since,until:p.until}),
+      time_increment:p.inc,
+      level:"account",limit:100,
+    });
+    set({loading:false,data:d.data||[],updAt:fmtNow()});
   }catch(e){set({loading:false,error:e.message});}
 }
 
 async function loadCamp(){
-  set({loading:true,error:null});
+  set({loading:true,error:null,campaigns:null});
+  const p=buildPeriod(S.periodKey);
   try{
-    const d=await api(aid()+"/campaigns",{fields:"name,status,objective,created_time,insights{actions,impressions,clicks,ctr}",limit:100});
-    set({loading:false,campaigns:d.data||[],updAt:fNow()});
+    const d=await callAPI(aid()+"/campaigns",{
+      fields:"name,status,objective,created_time,insights.time_range("+JSON.stringify({since:p.since,until:p.until})+"){actions,impressions,clicks,ctr}",
+      limit:100,
+    });
+    set({loading:false,campaigns:d.data||[],updAt:fmtNow()});
   }catch(e){set({loading:false,error:e.message});}
 }
 
-function switchTab(t){set({tab:t});if(t==="perf"&&!S.monthly)loadPerf();if(t==="camp"&&!S.campaigns)loadCamp();}
-function connect(){if(!S.token||!S.rawId)return;set({screen:"dashboard"});loadPerf();}
-function disconnect(){set({screen:"setup",monthly:null,campaigns:null,error:null,rl:{app:0,acct:0},updAt:null});}
-function refresh(){if(S.tab==="perf"){set({monthly:null});loadPerf();}else{set({campaigns:null});loadCamp();}}
+function fmtNow(){
+  const d=new Date();
+  return d.toLocaleDateString("es-MX",{day:"numeric",month:"short",year:"numeric"})+" "+d.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
+}
 
-// ── Render ────────────────────────────────────────────────────────────────────
+function loadCurrent(){S.tab==="perf"?loadPerf():loadCamp();}
+
+function setPeriod(key){
+  set({periodKey:key,data:null,campaigns:null});
+  loadCurrent();
+}
+
+function switchTab(t){
+  set({tab:t});
+  if(t==="perf"&&!S.data)loadPerf();
+  if(t==="camp"&&!S.campaigns)loadCamp();
+}
+
+function connect(){if(!S.token||!S.rawId)return;set({screen:"dashboard"});loadPerf();}
+function disconnect(){set({screen:"setup",data:null,campaigns:null,error:null,rl:{app:0,acct:0},updAt:null});}
+function refresh(){set({data:null,campaigns:null});loadCurrent();}
+
+// ── Render ───────────────────────────────────────────────────────────────────
 function render(){
   document.getElementById("app").innerHTML=S.screen==="setup"?rSetup():rDash();
   bind();
-  if(S.screen==="dashboard"&&S.tab==="perf"&&S.monthly&&!S.loading)drawChart();
+  if(S.screen==="dashboard"&&S.tab==="perf"&&S.data&&!S.loading)drawChart();
 }
 
+// ── Setup ────────────────────────────────────────────────────────────────────
 function rSetup(){return`
-  <div class="sw">
-    <div class="sl">Open C60</div>
-    <div class="ss">Panel de Generación de Leads</div>
-    <div class="sc">
-      <h2>Conectar cuenta de Meta Ads</h2>
-      <div class="fi"><label>Access Token</label><input type="password" id="it" placeholder="EAAxxxxx..." value="${esc(S.token)}"/></div>
-      <div class="fi"><label>Ad Account ID</label><input type="text" id="ii" placeholder="act_123456789" value="${esc(S.rawId)}"/><div class="hint">Con o sin el prefijo act_</div></div>
-      <button class="btn-c" id="bc" ${!S.token||!S.rawId?"disabled":""}>Conectar →</button>
-    </div>
-  </div>`;}
+<div class="sw">
+  <div class="s-logo">Open C60</div>
+  <div class="s-sub">Panel de Generación de Leads</div>
+  <div class="s-card">
+    <h2>Conectar cuenta de Meta Ads</h2>
+    <div class="fi"><label>Access Token</label><input type="password" id="it" placeholder="EAAxxxxx..." value="${esc(S.token)}"/></div>
+    <div class="fi"><label>Ad Account ID</label><input type="text" id="ii" placeholder="act_123456789" value="${esc(S.rawId)}"/><div class="hint">Con o sin el prefijo act_</div></div>
+    <button class="btn-c" id="bc" ${!S.token||!S.rawId?"disabled":""}>Conectar →</button>
+  </div>
+</div>`;}
 
+// ── Dashboard ─────────────────────────────────────────────────────────────────
 function rDash(){
   const mx=Math.max(S.rl.app,S.rl.acct);
   const rc=mx>=STOP?"#ef4444":mx>=WARN?"#f59e0b":"#22c55e";
-  return`
-  <div class="tb">
-    <div class="tb-brand"><div class="tb-logo">Open C60</div><div class="tb-sub">Panel de Leads · Meta Ads</div></div>
-    <div class="tb-right">
-      ${S.updAt?`<div class="upd">Actualizado: ${S.updAt}</div>`:""}
-      <div class="rl-row"><div class="rl-bar"><div class="rl-fill" style="width:${Math.min(mx,100)}%;background:${rc}"></div></div>API ${mx}%</div>
-      <button class="btn-out" id="bd">Salir</button>
-    </div>
-  </div>
-  <div class="tabbar">
-    <button class="tab ${S.tab==="perf"?"on":""}" data-tab="perf">Rendimiento</button>
-    <button class="tab ${S.tab==="camp"?"on":""}" data-tab="camp">Campañas</button>
-    <div class="tab-r"><button class="btn-ref" id="br" ${S.loading?"disabled":""}>↺ Actualizar</button></div>
-  </div>
-  <div class="main">
-    ${S.error?`<div class="err">⚠ ${esc(S.error)}</div>`:""}
-    ${S.loading?`<div class="loading"><div class="spin"></div><span>Cargando datos…</span></div>`:""}
-    ${!S.loading&&S.tab==="perf"&&S.monthly?rPerf():""}
-    ${!S.loading&&S.tab==="camp"&&S.campaigns?rCamp():""}
-  </div>
-  <div class="foot">Open C60 · Panel de Leads · Datos desde enero 2025</div>`;}
+  const months=availableMonths();
+  const p=buildPeriod(S.periodKey);
 
-function rPerf(){
-  const data=S.monthly;
-  if(!data.length)return`<div class="empty">Sin datos desde enero 2025.</div>`;
-  const tot=data.reduce((a,r)=>({l:a.l+leads(r.actions),i:a.i+parseInt(r.impressions||0),c:a.c+parseInt(r.clicks||0),r:a.r+parseInt(r.reach||0)}),{l:0,i:0,c:0,r:0});
-  const ctr=tot.i>0?(tot.c/tot.i*100):0, conv=tot.c>0?(tot.l/tot.c*100):0;
   return`
-  <div class="kpi-grid">
-    <div class="kc dark"><div class="kc-label">Leads totales</div><div class="kc-val">${fn(tot.l)}</div><div class="kc-sub">Desde enero 2025</div></div>
-    <div class="kc"><div class="kc-label">Impresiones</div><div class="kc-val">${fn(tot.i)}</div><div class="kc-sub">Total acumulado</div></div>
-    <div class="kc"><div class="kc-label">Alcance</div><div class="kc-val">${fn(tot.r)}</div><div class="kc-sub">Personas únicas</div></div>
-    <div class="kc"><div class="kc-label">CTR promedio</div><div class="kc-val">${fp(ctr)}</div><div class="kc-sub">Clics / Impresiones</div></div>
-    <div class="kc"><div class="kc-label">Tasa conversión</div><div class="kc-val">${fp(conv)}</div><div class="kc-sub">Leads / Clics</div></div>
+<div class="tb">
+  <div><div class="tb-logo">Open C60</div><div class="tb-sub">Panel de Leads · Meta Ads</div></div>
+  <div class="tb-r">
+    ${S.updAt?`<div class="upd">Actualizado: ${S.updAt}</div>`:""}
+    <div class="rl-row"><div class="rl-bar"><div class="rl-fill" style="width:${Math.min(mx,100)}%;background:${rc}"></div></div>API ${mx}%</div>
+    <button class="btn-out" id="bd">Salir</button>
   </div>
-  <div class="ch-card">
-    <div class="ch-head"><div><div class="ch-title">Leads por mes</div><div class="ch-sub">Evolución mensual · enero 2025 – hoy</div></div></div>
-    <div class="ch-wrap"><canvas id="lc" role="img" aria-label="Gráfica de leads por mes desde enero 2025"></canvas></div>
-  </div>
-  <div class="tc">
-    <div class="tc-head"><div class="tc-title">Desglose mensual</div></div>
-    <div class="tw"><table>
-      <thead><tr><th>Mes</th><th class="r">Leads</th><th class="r">Impresiones</th><th class="r">Alcance</th><th class="r">Clics</th><th class="r">CTR</th><th class="r">Conv.</th></tr></thead>
-      <tbody>
-        ${[...data].reverse().map(r=>{
-          const l=leads(r.actions),i=parseInt(r.impressions||0),c=parseInt(r.clicks||0);
-          const conv=c>0?(l/c*100).toFixed(2)+"%":"—";
-          const d=r.date_start?new Date(r.date_start+"T12:00:00"):null;
-          const lbl=d?MES_F[d.getMonth()]+" "+d.getFullYear():r.date_start||"—";
-          return`<tr><td class="td-m">${esc(lbl)}</td><td class="r td-l">${fn(l)}</td><td class="r td-n">${fn(i)}</td><td class="r td-n">${fn(parseInt(r.reach||0))}</td><td class="r td-n">${fn(c)}</td><td class="r">${fp(r.ctr)}</td><td class="r">${conv}</td></tr>`;
-        }).join("")}
-      </tbody>
-    </table></div>
-  </div>`;}
+</div>
 
-function rCamp(){
+<!-- Period filter -->
+<div class="pbar">
+  <div class="pbar-label">Período:</div>
+  <div class="p-group">
+    <button class="pbtn ${S.periodKey==="this_week"?"on":""}" data-period="this_week">Esta semana</button>
+    <button class="pbtn ${S.periodKey==="last_week"?"on":""}" data-period="last_week">Semana anterior</button>
+    <button class="pbtn ${S.periodKey==="this_month"?"on":""}" data-period="this_month">Este mes</button>
+    <button class="pbtn ${S.periodKey==="last_month"?"on":""}" data-period="last_month">Mes anterior</button>
+  </div>
+  <div class="psep"></div>
+  <div class="p-group">
+    <button class="pbtn ${S.periodKey==="2025"?"on":""}" data-period="2025">Año 2025</button>
+    <button class="pbtn ${S.periodKey==="2026"?"on":""}" data-period="2026">Año 2026</button>
+  </div>
+  <div class="psep"></div>
+  <select class="yr-sel" id="month-sel">
+    <option value="">— Mes específico —</option>
+    ${months.map(m=>`<option value="${m.key}" ${S.periodKey===m.key?"selected":""}>${m.label}</option>`).join("")}
+  </select>
+</div>
+
+<!-- Tab bar -->
+<div class="tabbar">
+  <button class="tab ${S.tab==="perf"?"on":""}" data-tab="perf">Rendimiento</button>
+  <button class="tab ${S.tab==="camp"?"on":""}" data-tab="camp">Campañas</button>
+  <div class="tab-r"><button class="btn-ref" id="br" ${S.loading?"disabled":""}>↺ Actualizar</button></div>
+</div>
+
+<div class="main">
+  ${S.error?`<div class="err">⚠ ${esc(S.error)}</div>`:""}
+  ${S.loading?`<div class="loading"><div class="spin"></div><span>Consultando Meta Ads…</span></div>`:""}
+  ${!S.loading&&S.tab==="perf"&&S.data?rPerf(p):""}
+  ${!S.loading&&S.tab==="camp"&&S.campaigns?rCamp(p):""}
+</div>
+<div class="foot">Open C60 · Datos directos desde Meta Ads API</div>`;}
+
+// ── Perf ──────────────────────────────────────────────────────────────────────
+function rPerf(p){
+  const data=S.data;
+  if(!data.length)return`<div class="empty">Sin datos para el período seleccionado.</div>`;
+
+  const tot=data.reduce((a,r)=>({
+    l:a.l+extractLeads(r.actions),
+    i:a.i+parseInt(r.impressions||0),
+    c:a.c+parseInt(r.clicks||0),
+    reach:a.reach+parseInt(r.reach||0),
+  }),{l:0,i:0,c:0,reach:0});
+  const ctr=tot.i>0?(tot.c/tot.i*100):0;
+  const conv=tot.c>0?(tot.l/tot.c*100):0;
+  const isWeekly=p.inc==="7";
+
+  return`
+<div class="period-chip">📅 <span>Período:</span> ${p.label}</div>
+<div class="kpi-grid">
+  <div class="kc hl"><div class="kc-lbl">Leads</div><div class="kc-val">${fn(tot.l)}</div><div class="kc-sub">${p.label}</div></div>
+  <div class="kc"><div class="kc-lbl">Impresiones</div><div class="kc-val">${fn(tot.i)}</div><div class="kc-sub">Total del período</div></div>
+  <div class="kc"><div class="kc-lbl">Alcance</div><div class="kc-val">${fn(tot.reach)}</div><div class="kc-sub">Personas únicas</div></div>
+  <div class="kc"><div class="kc-lbl">CTR</div><div class="kc-val">${fp(ctr)}</div><div class="kc-sub">Clics / Impresiones</div></div>
+  <div class="kc"><div class="kc-lbl">Tasa conv.</div><div class="kc-val">${fp(conv)}</div><div class="kc-sub">Leads / Clics</div></div>
+</div>
+
+<div class="ch-card">
+  <div class="ch-head">
+    <div><div class="ch-title">Leads por ${isWeekly?"semana":"mes"}</div><div class="ch-sub">${p.label}</div></div>
+  </div>
+  <div class="ch-wrap"><canvas id="lc" role="img" aria-label="Gráfica de leads para ${esc(p.label)}"></canvas></div>
+</div>
+
+<div class="tc">
+  <div class="tc-head"><div class="tc-title">Desglose por ${isWeekly?"semana":"mes"}</div></div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th>${isWeekly?"Semana":"Mes"}</th>
+      <th class="r">Leads</th>
+      <th class="r">Impresiones</th>
+      <th class="r">Alcance</th>
+      <th class="r">Clics</th>
+      <th class="r">CTR</th>
+      <th class="r">Conv.</th>
+    </tr></thead>
+    <tbody>
+      ${[...data].reverse().map(r=>{
+        const l=extractLeads(r.actions),i=parseInt(r.impressions||0),c=parseInt(r.clicks||0);
+        const cv=c>0?(l/c*100).toFixed(2)+"%":"—";
+        let lbl=r.date_start||"—";
+        if(r.date_start){
+          const d1=new Date(r.date_start+"T12:00:00");
+          if(isWeekly){
+            const d2=r.date_stop?new Date(r.date_stop+"T12:00:00"):d1;
+            lbl=`${d1.getDate()} ${MES_C[d1.getMonth()]} – ${d2.getDate()} ${MES_C[d2.getMonth()]}`;
+          }else{
+            lbl=MES_F[d1.getMonth()]+" "+d1.getFullYear();
+          }
+        }
+        return`<tr>
+          <td class="td-per">${esc(lbl)}</td>
+          <td class="r td-leads">${fn(l)}</td>
+          <td class="r td-n">${fn(i)}</td>
+          <td class="r td-n">${fn(parseInt(r.reach||0))}</td>
+          <td class="r td-n">${fn(c)}</td>
+          <td class="r">${fp(r.ctr)}</td>
+          <td class="r">${cv}</td>
+        </tr>`;
+      }).join("")}
+    </tbody>
+  </table></div>
+</div>`;}
+
+// ── Campaigns ─────────────────────────────────────────────────────────────────
+function rCamp(p){
   const data=S.campaigns;
-  if(!data.length)return`<div class="empty">Sin campañas.</div>`;
+  if(!data.length)return`<div class="empty">Sin campañas en el período.</div>`;
   return`
-  <div class="tc">
-    <div class="tc-head"><div class="tc-title">${data.length} campaña${data.length!==1?"s":""}</div></div>
-    <div class="tw"><table>
-      <thead><tr><th style="width:38%">Campaña</th><th>Estado</th><th>Objetivo</th><th class="r">Leads</th><th class="r">Impresiones</th><th class="r">CTR</th><th>Creada</th></tr></thead>
-      <tbody>
-        ${data.map(c=>{
-          const st=ST[c.status]||{l:c.status,bg:"#F3F4F6",c:"#4B5563"};
-          const ins=c.insights?.data?.[0];
-          const l=ins?leads(ins.actions):null;
-          return`<tr>
-            <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:0;min-width:140px" title="${esc(c.name)}">${esc(c.name)}</td>
-            <td><span class="badge" style="background:${st.bg};color:${st.c}">${st.l}</span></td>
-            <td style="color:#6B7280;font-size:12px">${OBJ[c.objective]||c.objective||"—"}</td>
-            <td class="r td-l">${l!==null?fn(l):"—"}</td>
-            <td class="r td-n">${ins?fn(ins.impressions):"—"}</td>
-            <td class="r">${ins?fp(ins.ctr):"—"}</td>
-            <td style="color:#6B7280;font-size:12px">${fd(c.created_time)}</td>
-          </tr>`;
-        }).join("")}
-      </tbody>
-    </table></div>
-  </div>`;}
+<div class="period-chip">📅 <span>Período:</span> ${p.label}</div>
+<div class="camp-wrap">
+  <div class="tc-head"><div class="tc-title">${data.length} campaña${data.length!==1?"s":""}</div></div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th style="width:36%">Campaña</th>
+      <th>Estado</th>
+      <th>Objetivo</th>
+      <th class="r">Leads</th>
+      <th class="r">Impresiones</th>
+      <th class="r">CTR</th>
+      <th>Creada</th>
+    </tr></thead>
+    <tbody>
+      ${data.map(c=>{
+        const st=ST_STYLE[c.status]||{bg:"#F1F5F9",c:"#475569"};
+        const lbl=ST_LABEL[c.status]||c.status;
+        const ins=c.insights?.data?.[0];
+        const l=ins?extractLeads(ins.actions):null;
+        return`<tr>
+          <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:0;min-width:130px" title="${esc(c.name)}">${esc(c.name)}</td>
+          <td><span class="badge" style="background:${st.bg};color:${st.c}">${lbl}</span></td>
+          <td style="color:#64748B;font-size:12px">${OBJ_MAP[c.objective]||c.objective||"—"}</td>
+          <td class="r td-leads">${l!==null?fn(l):"—"}</td>
+          <td class="r td-n">${ins?fn(ins.impressions):"—"}</td>
+          <td class="r">${ins?fp(ins.ctr):"—"}</td>
+          <td style="color:#64748B;font-size:12px">${fd(c.created_time)}</td>
+        </tr>`;
+      }).join("")}
+    </tbody>
+  </table></div>
+</div>`;}
 
+// ── Chart ─────────────────────────────────────────────────────────────────────
 function drawChart(){
   const canvas=document.getElementById("lc");
-  if(!canvas||!S.monthly)return;
+  if(!canvas||!S.data)return;
   if(chart){chart.destroy();chart=null;}
-  const sorted=[...S.monthly].sort((a,b)=>a.date_start>b.date_start?1:-1);
-  const labels=sorted.map(r=>{if(!r.date_start)return"";const d=new Date(r.date_start+"T12:00:00");return MES[d.getMonth()]+" '"+String(d.getFullYear()).slice(2);});
-  const vals=sorted.map(r=>leads(r.actions));
+  const p=buildPeriod(S.periodKey);
+  const sorted=[...S.data].sort((a,b)=>a.date_start>b.date_start?1:-1);
+  const isWeekly=p.inc==="7";
+  const labels=sorted.map(r=>{
+    if(!r.date_start)return"";
+    const d=new Date(r.date_start+"T12:00:00");
+    return isWeekly
+      ?`${d.getDate()} ${MES_C[d.getMonth()]}`
+      :MES_C[d.getMonth()]+" '"+String(d.getFullYear()).slice(2);
+  });
+  const vals=sorted.map(r=>extractLeads(r.actions));
   const maxIdx=vals.indexOf(Math.max(...vals));
   chart=new Chart(canvas,{
     type:"bar",
-    data:{labels,datasets:[{label:"Leads",data:vals,backgroundColor:vals.map((_,i)=>i===vals.length-1?"#2563EB":i===maxIdx?"#059669":"#0F1E3C"),borderRadius:6,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>labels[ctx[0].dataIndex],label:ctx=>" "+ctx.raw.toLocaleString("es-MX")+" leads"}}},scales:{x:{grid:{display:false},ticks:{font:{size:11},color:"#9CA3AF"}},y:{grid:{color:"#F3F4F6"},ticks:{font:{size:11},color:"#9CA3AF",precision:0},beginAtZero:true}}}
+    data:{labels,datasets:[{
+      label:"Leads",data:vals,
+      backgroundColor:vals.map((_,i)=>i===vals.length-1?"#2563EB":i===maxIdx?"#059669":"#0F1E3C"),
+      borderRadius:6,borderSkipped:false,
+    }]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{
+          title:ctx=>labels[ctx[0].dataIndex],
+          label:ctx=>" "+ctx.raw.toLocaleString("es-MX")+" leads",
+        }}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:11},color:"#94A3B8",autoSkip:false,maxRotation:45}},
+        y:{grid:{color:"#F1F5F9"},ticks:{font:{size:11},color:"#94A3B8",precision:0},beginAtZero:true},
+      }
+    }
   });
 }
 
+// ── Events ────────────────────────────────────────────────────────────────────
 function bind(){
+  // Setup inputs
   const it=document.getElementById("it"),ii=document.getElementById("ii");
   if(it)it.addEventListener("input",e=>{S.token=e.target.value;const b=document.getElementById("bc");if(b)b.disabled=!S.token||!S.rawId;});
-  if(ii){ii.addEventListener("input",e=>{S.rawId=e.target.value;const b=document.getElementById("bc");if(b)b.disabled=!S.token||!S.rawId;});ii.addEventListener("keydown",e=>{if(e.key==="Enter")connect();});}
+  if(ii){
+    ii.addEventListener("input",e=>{S.rawId=e.target.value;const b=document.getElementById("bc");if(b)b.disabled=!S.token||!S.rawId;});
+    ii.addEventListener("keydown",e=>{if(e.key==="Enter")connect();});
+  }
   const bc=document.getElementById("bc");if(bc)bc.addEventListener("click",connect);
+  // Dashboard
   document.querySelectorAll("[data-tab]").forEach(el=>el.addEventListener("click",()=>switchTab(el.dataset.tab)));
+  document.querySelectorAll("[data-period]").forEach(el=>el.addEventListener("click",()=>setPeriod(el.dataset.period)));
+  const ms=document.getElementById("month-sel");
+  if(ms)ms.addEventListener("change",e=>{if(e.target.value)setPeriod(e.target.value);});
   const br=document.getElementById("br");if(br)br.addEventListener("click",refresh);
   const bd=document.getElementById("bd");if(bd)bd.addEventListener("click",disconnect);
 }
