@@ -236,20 +236,28 @@ async function loadData(){
 async function loadTopAds(p){
   set({loadingAds:true});
   try{
-    const d=await apiCall("__ACCOUNT__/ads",{
-      fields:"name,creative{thumbnail_url,image_url},insights.time_range("+JSON.stringify({since:p.since,until:p.until})+"){actions,clicks}",
-      limit:100,
+    // Step 1: get insights per ad for the period
+    const ins=await apiCall("__ACCOUNT__/insights",{
+      fields:"ad_id,ad_name,actions,clicks",
+      time_range:JSON.stringify({since:p.since,until:p.until}),
+      level:"ad",limit:100,
     });
-    const ads=(d.data||[])
-      .map(ad=>({
-        name:ad.name,
-        thumb:ad.creative?.thumbnail_url||ad.creative?.image_url||null,
-        leads:extractLeads(ad.insights?.data?.[0]?.actions),
-        clicks:parseInt(ad.insights?.data?.[0]?.clicks||0),
-      }))
+    // Step 2: sort by leads, take top 3
+    const sorted=(ins.data||[])
+      .map(r=>({id:r.ad_id,name:r.ad_name,leads:extractLeads(r.actions),clicks:parseInt(r.clicks||0)}))
       .filter(a=>a.leads>0)
       .sort((a,b)=>b.leads-a.leads)
       .slice(0,3);
+    if(!sorted.length){set({loadingAds:false,topAds:[]});return;}
+    // Step 3: get thumbnails for those 3 ads
+    const ids=sorted.map(a=>a.id).join(",");
+    const cr=await apiCall("",{
+      ids,fields:"creative{thumbnail_url,image_url}",
+    });
+    const ads=sorted.map(a=>({
+      ...a,
+      thumb:cr[a.id]?.creative?.thumbnail_url||cr[a.id]?.creative?.image_url||null,
+    }));
     set({loadingAds:false,topAds:ads});
   }catch(e){set({loadingAds:false,topAds:[]});}
 }
