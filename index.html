@@ -9,27 +9,27 @@
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
       --navy:#0F1E3C;--navy2:#162d54;--blue:#2563EB;--blue-lt:#EFF6FF;
-      --green:#059669;--green-lt:#ECFDF5;
-      --bg:#F1F4F9;--card:#fff;--border:#E2E8F0;
+      --green:#059669;--bg:#F1F4F9;--card:#fff;--border:#E2E8F0;
       --text:#0F172A;--text2:#64748B;--text3:#94A3B8;
       --r:12px;--sh:0 1px 3px rgba(15,30,60,.06),0 4px 16px rgba(15,30,60,.05);
     }
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-    /* ── Setup ── */
-    .sw{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;background:var(--navy)}
-    .s-logo{color:#fff;font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:2px}
-    .s-sub{color:rgba(255,255,255,.4);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:2.5rem}
-    .s-card{background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:390px}
-    .s-card h2{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:1.5rem}
+    /* ── Login ── */
+    .lw{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;background:var(--navy)}
+    .l-logo{color:#fff;font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:2px}
+    .l-sub{color:rgba(255,255,255,.4);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:2.5rem}
+    .l-card{background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:360px}
+    .l-card h2{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:1.5rem}
     .fi{margin-bottom:14px}
     .fi label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px}
     .fi input{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;transition:border-color .2s}
     .fi input:focus{outline:none;border-color:var(--blue)}
-    .fi .hint{font-size:11px;color:var(--text3);margin-top:4px}
-    .btn-c{width:100%;padding:12px;background:var(--navy);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px;transition:opacity .2s}
-    .btn-c:hover{opacity:.88}
-    .btn-c:disabled{opacity:.35;cursor:default}
+    .btn-login{width:100%;padding:12px;background:var(--navy);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px;transition:opacity .2s;position:relative}
+    .btn-login:hover{opacity:.88}
+    .btn-login:disabled{opacity:.45;cursor:default}
+    .l-err{background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 13px;font-size:13px;color:#B91C1C;margin-bottom:14px;display:none}
+    .l-err.show{display:block}
 
     /* ── Topbar ── */
     .tb{background:var(--navy);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
@@ -54,7 +54,7 @@
     .yr-sel{border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:12px;color:var(--text);background:var(--bg);cursor:pointer}
     .yr-sel:focus{outline:none;border-color:var(--blue)}
 
-    /* ── Toolbar (refresh only) ── */
+    /* ── Toolbar ── */
     .toolbar{background:var(--card);border-bottom:1px solid var(--border);padding:.6rem 1.5rem;display:flex;justify-content:flex-end}
     .btn-ref{background:var(--blue-lt);color:var(--blue);border:none;border-radius:7px;padding:6px 13px;font-size:12px;font-weight:600;cursor:pointer}
     .btn-ref:hover{opacity:.85}
@@ -63,11 +63,10 @@
     /* ── Main ── */
     .main{padding:1.5rem;max-width:1200px;margin:0 auto}
 
-    /* Period chip */
     .period-chip{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;margin-bottom:1.25rem}
     .period-chip span{color:rgba(255,255,255,.5);font-weight:400}
 
-    /* ── KPI grid ── */
+    /* ── KPIs ── */
     .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:1.5rem}
     .kc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.25rem;box-shadow:var(--sh)}
     .kc.hl{background:var(--navy);border-color:var(--navy)}
@@ -103,7 +102,7 @@
     /* ── Top 3 Ads ── */
     .ads-section{margin-bottom:1.5rem}
     .ads-title{font-size:14px;font-weight:700;margin-bottom:1rem}
-    .ads-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    .ads-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
     .ad-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);display:flex;align-items:center;gap:14px;padding:14px}
     .ad-thumb{width:72px;height:72px;object-fit:cover;border-radius:8px;flex-shrink:0;display:block}
     .ad-thumb-placeholder{width:72px;height:72px;border-radius:8px;background:#E2E8F0;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:10px;flex-shrink:0}
@@ -117,18 +116,18 @@
     .ad-stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:2px;font-weight:600}
     .ad-stat-val{font-size:16px;font-weight:800}
     .ad-stat-val.green{color:var(--green)}
-    .ads-loading{text-align:center;padding:2rem;color:var(--text2);font-size:13px}
+    .ads-loading{display:flex;align-items:center;gap:8px;padding:1.5rem;color:var(--text2);font-size:13px}
 
     /* ── States ── */
     .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem;color:var(--text2);gap:10px;font-size:13px}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .spin{width:20px;height:20px;border:2.5px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+    .spin{width:20px;height:20px;border:2.5px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
     .err{background:#FEF2F2;border:1px solid #FECACA;border-radius:9px;padding:11px 14px;font-size:13px;color:#B91C1C;margin-bottom:1rem}
     .empty{text-align:center;padding:3rem;color:var(--text2);font-size:14px}
     .foot{text-align:center;padding:1.5rem;font-size:11px;color:var(--text3)}
 
     @media(max-width:640px){
-      .main{padding:1rem}.tb{padding:0 1rem}.pbar{padding:.75rem 1rem}
+      .main{padding:1rem}.tb,.pbar,.toolbar{padding-left:1rem;padding-right:1rem}
       .kc-val{font-size:22px}.upd{display:none}
     }
   </style>
@@ -136,7 +135,6 @@
 <body>
 <div id="app"></div>
 <script>
-const API="https://graph.facebook.com/v21.0",THROTTLE=300,WARN=75,STOP=92;
 const MES_C=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 const MES_F=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
@@ -168,22 +166,33 @@ function buildPeriod(key){
   if(key==="last_month"){const lm=cm===0?11:cm-1,ly=cm===0?cy-1:cy;return{since:monthStart(ly,lm),until:monthEnd(ly,lm),inc:"7",label:MES_F[lm]+" "+ly};}
   if(/^\d{4}-\d{2}$/.test(key)){const[y,m]=[parseInt(key.slice(0,4)),parseInt(key.slice(5,7))-1];return{since:monthStart(y,m),until:monthEnd(y,m),inc:"7",label:MES_F[m]+" "+y};}
   if(/^\d{4}$/.test(key)){const y=parseInt(key),until=y===cy?today():monthEnd(y,11);return{since:`${y}-01-01`,until,inc:"monthly",label:"Año "+y};}
-  return{since:"2025-01-01",until:today(),inc:"monthly",label:"Todo (desde ene 2025)"};
+  return{since:"2025-01-01",until:today(),inc:"monthly",label:"Todo"};
 }
 
 function availableMonths(){
-  const months=[],now=new Date(),cy=now.getFullYear(),cm=now.getMonth();
-  for(let y=2025;y<=cy;y++){const maxM=y===cy?cm:11;for(let m=0;m<=maxM;m++)months.push({key:`${y}-${padZ(m+1)}`,label:MES_C[m]+" '"+String(y).slice(2)});}
-  return months.reverse();
+  const out=[],now=new Date(),cy=now.getFullYear(),cm=now.getMonth();
+  for(let y=2025;y<=cy;y++){const mx=y===cy?cm:11;for(let m=0;m<=mx;m++)out.push({key:`${y}-${padZ(m+1)}`,label:MES_C[m]+" '"+String(y).slice(2)});}
+  return out.reverse();
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let S={screen:"setup",token:"",rawId:"",rl:{app:0,acct:0},periodKey:"this_month",data:null,topAds:null,loading:false,loadingAds:false,error:null,updAt:null};
+let S={
+  screen:"login",sessionToken:sessionStorage.getItem("oc60_token")||null,
+  rl:{app:0,acct:0},periodKey:"this_month",
+  data:null,topAds:null,loading:false,loadingAds:false,error:null,updAt:null,
+};
+// Auto-login if token exists
+if(S.sessionToken) S.screen="dashboard";
+
 let lastT=0,chart=null;
 const set=p=>{S={...S,...p};render();};
-const aid=()=>S.rawId?"act_"+S.rawId.replace(/^act_/,""):"";
 
-// ── API ───────────────────────────────────────────────────────────────────────
+function fmtNow(){
+  const d=new Date();
+  return d.toLocaleDateString("es-MX",{day:"numeric",month:"short",year:"numeric"})+" "+d.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
+}
+
+// ── API calls (through /api/meta proxy) ──────────────────────────────────────
 function readH(h){
   try{
     const a=JSON.parse(h.get("x-app-usage")||"{}"),b=JSON.parse(h.get("x-ad-account-usage")||"{}");
@@ -191,33 +200,35 @@ function readH(h){
     S.rl={app:Math.round(app),acct:Math.round(acct)};return Math.max(app,acct);
   }catch{return 0;}
 }
-async function callAPI(path,params={}){
-  const w=THROTTLE-(Date.now()-lastT);if(w>0)await new Promise(r=>setTimeout(r,w));lastT=Date.now();
-  const u=new URL(API+"/"+path);u.searchParams.set("access_token",S.token);
-  for(const[k,v]of Object.entries(params))u.searchParams.set(k,v);
-  const res=await fetch(u.toString());const pct=readH(res.headers);
-  if(pct>=STOP)throw new Error("Límite de API ("+Math.round(pct)+"%). Espera unos minutos.");
-  if(pct>=WARN)await new Promise(r=>setTimeout(r,800));
-  const j=await res.json();if(j.error)throw new Error(j.error.message);return j;
+
+async function apiCall(path, params={}){
+  const qs=new URLSearchParams({path,...params}).toString();
+  const res=await fetch(`/api/meta?${qs}`,{headers:{"Authorization":"Bearer "+S.sessionToken}});
+  if(res.status===401){logout();throw new Error("Sesión expirada. Inicia sesión nuevamente.");}
+  readH(res.headers);
+  const j=await res.json();
+  if(j.error)throw new Error(j.error.message||j.error);
+  return j;
 }
 
-function fmtNow(){
-  const d=new Date();
-  return d.toLocaleDateString("es-MX",{day:"numeric",month:"short",year:"numeric"})+" "+d.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
+async function doLogin(user, pass){
+  const res=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user,pass})});
+  const j=await res.json();
+  if(!j.ok)throw new Error(j.error||"Error de autenticación");
+  return j.token;
 }
 
+// ── Load data ─────────────────────────────────────────────────────────────────
 async function loadData(){
   set({loading:true,error:null,data:null,topAds:null});
   const p=buildPeriod(S.periodKey);
   try{
-    // Insights por período
-    const d=await callAPI(aid()+"/insights",{
+    const d=await apiCall("__ACCOUNT__/insights",{
       fields:"impressions,clicks,ctr,reach,actions",
       time_range:JSON.stringify({since:p.since,until:p.until}),
       time_increment:p.inc,level:"account",limit:100,
     });
     set({loading:false,data:d.data||[],updAt:fmtNow()});
-    // Top 3 ads en segundo plano
     loadTopAds(p);
   }catch(e){set({loading:false,error:e.message});}
 }
@@ -225,13 +236,12 @@ async function loadData(){
 async function loadTopAds(p){
   set({loadingAds:true});
   try{
-    const d=await callAPI(aid()+"/ads",{
+    const d=await apiCall("__ACCOUNT__/ads",{
       fields:"name,creative{thumbnail_url,image_url},insights.time_range("+JSON.stringify({since:p.since,until:p.until})+"){actions,clicks}",
       limit:100,
     });
     const ads=(d.data||[])
       .map(ad=>({
-        id:ad.id,
         name:ad.name,
         thumb:ad.creative?.thumbnail_url||ad.creative?.image_url||null,
         leads:extractLeads(ad.insights?.data?.[0]?.actions),
@@ -241,50 +251,47 @@ async function loadTopAds(p){
       .sort((a,b)=>b.leads-a.leads)
       .slice(0,3);
     set({loadingAds:false,topAds:ads});
-  }catch(e){
-    set({loadingAds:false,topAds:[]});
-  }
+  }catch(e){set({loadingAds:false,topAds:[]});}
 }
 
 function setPeriod(key){set({periodKey:key,data:null,topAds:null});loadData();}
-function connect(){if(!S.token||!S.rawId)return;set({screen:"dashboard"});loadData();}
-function disconnect(){set({screen:"setup",data:null,topAds:null,error:null,rl:{app:0,acct:0},updAt:null});}
-function refresh(){set({data:null,topAds:null});loadData();}
+function logout(){sessionStorage.removeItem("oc60_token");set({screen:"login",sessionToken:null,data:null,topAds:null,error:null});}
 
 // ── Render ────────────────────────────────────────────────────────────────────
 function render(){
-  document.getElementById("app").innerHTML=S.screen==="setup"?rSetup():rDash();
+  document.getElementById("app").innerHTML=S.screen==="login"?rLogin():rDash();
   bind();
   if(S.screen==="dashboard"&&S.data&&!S.loading)drawChart();
 }
 
-function rSetup(){return`
-<div class="sw">
-  <div class="s-logo">Open C60</div>
-  <div class="s-sub">Panel de Generación de Leads</div>
-  <div class="s-card">
-    <h2>Conectar cuenta de Meta Ads</h2>
-    <div class="fi"><label>Access Token</label><input type="password" id="it" placeholder="EAAxxxxx..." value="${esc(S.token)}"/></div>
-    <div class="fi"><label>Ad Account ID</label><input type="text" id="ii" placeholder="act_123456789" value="${esc(S.rawId)}"/><div class="hint">Con o sin el prefijo act_</div></div>
-    <button class="btn-c" id="bc" ${!S.token||!S.rawId?"disabled":""}>Conectar →</button>
+// ── Login screen ──────────────────────────────────────────────────────────────
+function rLogin(){return`
+<div class="lw">
+  <div class="l-logo">Open C60</div>
+  <div class="l-sub">Panel de Leads</div>
+  <div class="l-card">
+    <h2>Iniciar sesión</h2>
+    <div class="l-err" id="l-err"></div>
+    <div class="fi"><label>Usuario</label><input type="text" id="lu" autocomplete="username" placeholder="usuario"/></div>
+    <div class="fi"><label>Contraseña</label><input type="password" id="lp" autocomplete="current-password" placeholder="••••••••"/></div>
+    <button class="btn-login" id="btn-login">Entrar →</button>
   </div>
 </div>`;}
 
+// ── Dashboard ─────────────────────────────────────────────────────────────────
 function rDash(){
   const mx=Math.max(S.rl.app,S.rl.acct);
-  const rc=mx>=STOP?"#ef4444":mx>=WARN?"#f59e0b":"#22c55e";
-  const months=availableMonths();
+  const rc=mx>=92?"#ef4444":mx>=75?"#f59e0b":"#22c55e";
   const p=buildPeriod(S.periodKey);
   const isWeekly=p.inc==="7";
+  const months=availableMonths();
 
-  // Totals
   const tot=S.data?(S.data.reduce((a,r)=>({
     l:a.l+extractLeads(r.actions),
     i:a.i+parseInt(r.impressions||0),
     c:a.c+parseInt(r.clicks||0),
     reach:a.reach+parseInt(r.reach||0),
   }),{l:0,i:0,c:0,reach:0})):null;
-  const ctr=tot&&tot.i>0?(tot.c/tot.i*100):0;
   const conv=tot&&tot.c>0?(tot.l/tot.c*100):0;
 
   return`
@@ -323,13 +330,12 @@ function rDash(){
 
 <div class="main">
   ${S.error?`<div class="err">⚠ ${esc(S.error)}</div>`:""}
-  ${S.loading?`<div class="loading"><div class="spin"></div><span>Consultando Meta Ads…</span></div>`:""}
+  ${S.loading?`<div class="loading"><div class="spin"></div><span>Consultando datos…</span></div>`:""}
 
   ${!S.loading&&S.data?(()=>{
     if(!S.data.length)return`<div class="empty">Sin datos para el período seleccionado.</div>`;
     return`
 <div class="period-chip">📅 <span>Período:</span> ${p.label}</div>
-
 <div class="kpi-grid">
   <div class="kc hl"><div class="kc-lbl">Leads</div><div class="kc-val">${fn(tot.l)}</div><div class="kc-sub">${p.label}</div></div>
   <div class="kc"><div class="kc-lbl">Clics</div><div class="kc-val">${fn(tot.c)}</div><div class="kc-sub">Total del período</div></div>
@@ -337,24 +343,16 @@ function rDash(){
   <div class="kc"><div class="kc-lbl">Alcance</div><div class="kc-val">${fn(tot.reach)}</div><div class="kc-sub">Personas únicas</div></div>
   <div class="kc"><div class="kc-lbl">Tasa conv.</div><div class="kc-val">${fp(conv)}</div><div class="kc-sub">Leads / Clics</div></div>
 </div>
-
 <div class="ch-card">
-  <div class="ch-head">
-    <div><div class="ch-title">Leads por ${isWeekly?"semana":"mes"}</div><div class="ch-sub">${p.label}</div></div>
-  </div>
+  <div class="ch-head"><div><div class="ch-title">Leads por ${isWeekly?"semana":"mes"}</div><div class="ch-sub">${p.label}</div></div></div>
   <div class="ch-wrap"><canvas id="lc" role="img" aria-label="Gráfica de leads"></canvas></div>
 </div>
-
 <div class="tc">
   <div class="tc-head"><div class="tc-title">Desglose por ${isWeekly?"semana":"mes"}</div></div>
   <div class="tw"><table>
     <thead><tr>
       <th>${isWeekly?"Semana":"Mes"}</th>
-      <th class="r">Leads</th>
-      <th class="r">Clics</th>
-      <th class="r">Impresiones</th>
-      <th class="r">Alcance</th>
-      <th class="r">Conv.</th>
+      <th class="r">Leads</th><th class="r">Clics</th><th class="r">Impresiones</th><th class="r">Alcance</th><th class="r">Conv.</th>
     </tr></thead>
     <tbody>
       ${[...S.data].reverse().map(r=>{
@@ -366,41 +364,29 @@ function rDash(){
           if(isWeekly){const d2=r.date_stop?new Date(r.date_stop+"T12:00:00"):d1;lbl=`${d1.getDate()} ${MES_C[d1.getMonth()]} – ${d2.getDate()} ${MES_C[d2.getMonth()]}`;}
           else lbl=MES_F[d1.getMonth()]+" "+d1.getFullYear();
         }
-        return`<tr>
-          <td class="td-per">${esc(lbl)}</td>
-          <td class="r td-leads">${fn(l)}</td>
-          <td class="r td-n">${fn(c2)}</td>
-          <td class="r td-n">${fn(i)}</td>
-          <td class="r td-n">${fn(parseInt(r.reach||0))}</td>
-          <td class="r">${cv}</td>
-        </tr>`;
+        return`<tr><td class="td-per">${esc(lbl)}</td><td class="r td-leads">${fn(l)}</td><td class="r td-n">${fn(c2)}</td><td class="r td-n">${fn(i)}</td><td class="r td-n">${fn(parseInt(r.reach||0))}</td><td class="r">${cv}</td></tr>`;
       }).join("")}
     </tbody>
   </table></div>
 </div>
-
-${rTopAds()}
-`;
+${rTopAds()}`;
   })():""}
 </div>
-<div class="foot">Open C60 · Datos directos desde Meta Ads API</div>`;
+<div class="foot">Open C60 · Datos directos desde Meta Ads</div>`;
 }
 
 function rTopAds(){
-  if(S.loadingAds)return`<div class="ads-loading"><div class="spin" style="display:inline-block;margin-right:8px"></div>Cargando mejores anuncios…</div>`;
+  if(S.loadingAds)return`<div class="ads-loading"><div class="spin"></div><span>Cargando mejores anuncios…</span></div>`;
   if(!S.topAds||!S.topAds.length)return"";
-  const ranks=["r1","r2","r3"];
-  const medals=["🥇","🥈","🥉"];
+  const ranks=["r1","r2","r3"],medals=["🥇","🥈","🥉"];
   return`
 <div class="ads-section">
   <div class="ads-title">Top 3 anuncios del período</div>
   <div class="ads-grid">
     ${S.topAds.map((ad,i)=>`
       <div class="ad-card">
-        ${ad.thumb
-          ?`<img class="ad-thumb" src="${esc(ad.thumb)}" alt="${esc(ad.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-          :""}
-        <div class="ad-thumb-placeholder" style="${ad.thumb?"display:none":""}">Sin miniatura</div>
+        ${ad.thumb?`<img class="ad-thumb" src="${esc(ad.thumb)}" alt="${esc(ad.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:``}
+        <div class="ad-thumb-placeholder" style="${ad.thumb?"display:none":""}">Sin img</div>
         <div class="ad-body">
           <div class="ad-rank ${ranks[i]}">${medals[i]} Puesto ${i+1}</div>
           <div class="ad-name">${esc(ad.name)}</div>
@@ -436,18 +422,39 @@ function drawChart(){
   });
 }
 
+// ── Events ────────────────────────────────────────────────────────────────────
 function bind(){
-  const it=document.getElementById("it"),ii=document.getElementById("ii");
-  if(it)it.addEventListener("input",e=>{S.token=e.target.value;const b=document.getElementById("bc");if(b)b.disabled=!S.token||!S.rawId;});
-  if(ii){ii.addEventListener("input",e=>{S.rawId=e.target.value;const b=document.getElementById("bc");if(b)b.disabled=!S.token||!S.rawId;});ii.addEventListener("keydown",e=>{if(e.key==="Enter")connect();});}
-  const bc=document.getElementById("bc");if(bc)bc.addEventListener("click",connect);
+  // Login
+  const lu=document.getElementById("lu"),lp=document.getElementById("lp"),bl=document.getElementById("btn-login");
+  if(bl){
+    const doLogin2=async()=>{
+      const user=lu?.value.trim(),pass=lp?.value;
+      if(!user||!pass)return;
+      bl.disabled=true;bl.textContent="Verificando…";
+      const errEl=document.getElementById("l-err");
+      try{
+        const token=await doLogin(user,pass);
+        sessionStorage.setItem("oc60_token",token);
+        set({screen:"dashboard",sessionToken:token});
+        loadData();
+      }catch(e){
+        if(errEl){errEl.textContent=e.message;errEl.classList.add("show");}
+        bl.disabled=false;bl.textContent="Entrar →";
+      }
+    };
+    bl.addEventListener("click",doLogin2);
+    lp?.addEventListener("keydown",e=>{if(e.key==="Enter")doLogin2();});
+  }
+  // Dashboard
   document.querySelectorAll("[data-period]").forEach(el=>el.addEventListener("click",()=>setPeriod(el.dataset.period)));
   const ms=document.getElementById("month-sel");if(ms)ms.addEventListener("change",e=>{if(e.target.value)setPeriod(e.target.value);});
-  const br=document.getElementById("br");if(br)br.addEventListener("click",refresh);
-  const bd=document.getElementById("bd");if(bd)bd.addEventListener("click",disconnect);
+  const br=document.getElementById("br");if(br)br.addEventListener("click",()=>{set({data:null,topAds:null});loadData();});
+  const bd=document.getElementById("bd");if(bd)bd.addEventListener("click",logout);
 }
 
 render();
+// Auto-load data if already logged in
+if(S.screen==="dashboard")loadData();
 </script>
 </body>
 </html>
