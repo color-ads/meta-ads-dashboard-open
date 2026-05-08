@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meta Ads Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #ffffff;
+      --bg2: #f7f8fa;
+      --border: #e5e7eb;
+      --text: #111827;
+      --text2: #6b7280;
+      --text3: #9ca3af;
+      --blue: #1877F2;
+      --blue-bg: #eff6ff;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg2);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    #app { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* Setup */
+    .setup-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      max-width: 460px;
+      margin: 4rem auto;
+    }
+    .setup-card h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+    .setup-card p  { font-size: 14px; color: var(--text2); margin-bottom: 2rem; line-height: 1.6; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 5px; }
+    .field input {
+      width: 100%; padding: 10px 14px;
+      border: 1px solid var(--border); border-radius: 10px;
+      font-size: 14px; background: var(--bg2);
+      transition: border-color .2s;
+    }
+    .field input:focus { outline: none; border-color: var(--blue); background: #fff; }
+    .field .hint { font-size: 12px; color: var(--text3); margin-top: 4px; }
+    .btn-primary {
+      width: 100%; padding: 11px; background: var(--blue); color: white;
+      border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
+      cursor: pointer; margin-top: 8px; transition: opacity .2s;
+    }
+    .btn-primary:hover { opacity: .88; }
+    .btn-primary:disabled { opacity: .4; cursor: default; }
+
+    /* Header */
+    .header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 1.5rem; flex-wrap: wrap; gap: 12px;
+    }
+    .header h1 { font-size: 20px; font-weight: 600; margin-bottom: 2px; }
+    .header .acct { font-size: 12px; color: var(--text2); font-family: monospace; }
+    .rl-widget { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+    .rl-label  { font-size: 11px; color: var(--text2); }
+    .rl-row    { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text2); }
+    .rl-bar    { width: 70px; height: 5px; border-radius: 3px; background: var(--border); overflow: hidden; }
+    .rl-fill   { height: 100%; border-radius: 3px; transition: width .4s; }
+
+    /* Tabs */
+    .tabs {
+      display: flex; align-items: center;
+      border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;
+    }
+    .tab {
+      background: none; border: none; border-bottom: 2px solid transparent;
+      padding: 10px 18px; font-size: 14px; cursor: pointer; color: var(--text2);
+      transition: color .15s; white-space: nowrap;
+    }
+    .tab:hover  { color: var(--text); }
+    .tab.active { border-bottom-color: var(--blue); color: var(--blue); font-weight: 500; }
+    .tab-actions { margin-left: auto; }
+    .btn-sm {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px 14px; font-size: 13px; cursor: pointer;
+    }
+    .btn-sm:hover { background: var(--bg2); }
+    .btn-sm:disabled { opacity: .4; cursor: default; }
+
+    /* Error */
+    .error-bar {
+      background: #fef2f2; border: 1px solid #fca5a5;
+      border-radius: 10px; padding: 10px 14px; margin-bottom: 1rem;
+      font-size: 13px; color: #b91c1c; display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Loading */
+    .loading { text-align: center; padding: 3rem; color: var(--text2); font-size: 14px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: 8px; }
+
+    /* Stats */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+    .stat-card  { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+    .stat-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+    .stat-value { font-size: 20px; font-weight: 600; font-family: 'Courier New', monospace; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+    th { text-align: left; padding: 9px 12px; font-size: 12px; color: var(--text2); font-weight: 500; border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; }
+    tr:hover td { background: var(--bg2); }
+    .td-r { text-align: right; font-family: monospace; }
+
+    /* Badge */
+    .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 20px; }
+
+    /* Catalog grid */
+    .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 12px; }
+    .catalog-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; }
+    .catalog-name { font-weight: 600; font-size: 14px; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .catalog-meta { font-size: 12px; color: var(--text2); margin-bottom: 3px; }
+    .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 6px; background: var(--blue-bg); color: var(--blue); margin-top: 6px; }
+
+    /* Pixel list */
+    .pixel-list { display: flex; flex-direction: column; gap: 8px; }
+    .pixel-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .pixel-dot  { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .pixel-name { font-weight: 500; font-size: 14px; }
+    .pixel-id   { font-size: 12px; color: var(--text2); font-family: monospace; }
+    .pixel-date { text-align: right; }
+    .pixel-date-label { font-size: 11px; color: var(--text2); }
+    .pixel-date-val   { font-size: 13px; }
+
+    /* Empty */
+    .empty { text-align: center; padding: 3rem; color: var(--text2); font-size: 14px; }
+
+    /* Footer */
+    .footer {
+      margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 8px; font-size: 12px; color: var(--text3);
+    }
+    .btn-link { background: none; border: none; cursor: pointer; font-size: 12px; color: var(--text2); }
+    .btn-link:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const API = "https://graph.facebook.com/v21.0";
+const THROTTLE_MS = 300;
+const WARN_PCT = 75;
+const STOP_PCT = 92;
+
+const fmtNum   = n => n == null ? "—" : Number(n).toLocaleString("es-MX");
+const fmtPct   = n => n == null ? "—" : parseFloat(n).toFixed(2) + "%";
+const fmtMoney = n => n == null ? "—" : "$" + parseFloat(n).toFixed(2);
+const fmtDate  = s => s ? new Date(s).toLocaleDateString("es-MX") : "—";
+const fmtTs    = s => s ? new Date(s * 1000).toLocaleDateString("es-MX") : "Sin datos";
+
+const STATUS_MAP = {
+  ACTIVE:          { label:"Activa",          bg:"#dcfce7", color:"#166534" },
+  PAUSED:          { label:"Pausada",         bg:"#fef9c3", color:"#854d0e" },
+  ARCHIVED:        { label:"Archivada",       bg:"#f3f4f6", color:"#4b5563" },
+  DELETED:         { label:"Eliminada",       bg:"#fee2e2", color:"#991b1b" },
+  CAMPAIGN_PAUSED: { label:"Camp. pausada",   bg:"#fef9c3", color:"#854d0e" },
+  PENDING_REVIEW:  { label:"En revisión",     bg:"#dbeafe", color:"#1e40af" },
+  DISAPPROVED:     { label:"Rechazada",       bg:"#fee2e2", color:"#991b1b" },
+  WITH_ISSUES:     { label:"Con problemas",   bg:"#fee2e2", color:"#991b1b" },
+};
+
+const OBJ_MAP = {
+  OUTCOME_SALES:"Ventas", OUTCOME_LEADS:"Leads", OUTCOME_TRAFFIC:"Tráfico",
+  OUTCOME_ENGAGEMENT:"Engagement", OUTCOME_APP_PROMOTION:"App",
+  OUTCOME_AWARENESS:"Reconocimiento", LINK_CLICKS:"Clics",
+  CONVERSIONS:"Conversiones", BRAND_AWARENESS:"Marca",
+  REACH:"Alcance", VIDEO_VIEWS:"Video", MESSAGES:"Mensajes",
+};
+
+const TABS = [
+  { key:"campaigns", label:"Campañas"  },
+  { key:"insights",  label:"Insights"  },
+  { key:"catalogs",  label:"Catálogos" },
+  { key:"pixels",    label:"Píxeles"   },
+];
+
+let state = {
+  screen: "setup",
+  token: "",
+  rawId: "",
+  tab: "campaigns",
+  rl: { app: 0, acct: 0 },
+  cache: {},
+  loading: false,
+  error: null,
+};
+
+let lastCall = 0;
+
+function setState(patch) {
+  state = { ...state, ...patch };
+  render();
+}
+
+function accountId() {
+  return state.rawId ? "act_" + state.rawId.replace(/^act_/, "") : "";
+}
+
+function readHeaders(headers) {
+  try {
+    const a = JSON.parse(headers.get("x-app-usage") || "{}");
+    const b = JSON.parse(headers.get("x-ad-account-usage") || "{}");
+    const app  = Math.max(a.call_count||0, a.total_cputime||0, a.total_time||0);
+    const acct = b.acc_id_util_pct || 0;
+    setState({ rl: { app: Math.round(app), acct: Math.round(acct) } });
+    return Math.max(app, acct);
+  } catch { return 0; }
+}
+
+async function apiFetch(path, params = {}) {
+  const wait = THROTTLE_MS - (Date.now() - lastCall);
+  if (wait > 0) await new Promise(r => setTimeout(r, wait));
+  lastCall = Date.now();
+  const u = new URL(API + "/" + path);
+  u.searchParams.set("access_token", state.token);
+  for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
+  const res  = await fetch(u.toString());
+  const pct  = readHeaders(res.headers);
+  if (pct >= STOP_PCT) throw new Error("Límite de API: " + Math.round(pct) + "% — pausa automática.");
+  if (pct >= WARN_PCT) await new Promise(r => setTimeout(r, 800));
+  const json = await res.json();
+  if (json.error) throw new Error("[" + (json.error.code || "ERR") + "] " + json.error.message);
+  return json;
+}
+
+async function loadTab(t) {
+  setState({ loading: true, error: null });
+  const id = accountId();
+  try {
+    let result;
+    if (t === "campaigns") {
+      const d = await apiFetch(id + "/campaigns", { fields:"name,status,objective,created_time", limit:100 });
+      result = d.data || [];
+    } else if (t === "insights") {
+      const d = await apiFetch(id + "/insights", { fields:"campaign_name,impressions,clicks,ctr,spend,reach", date_preset:"last_30d", level:"campaign", limit:50 });
+      result = d.data || [];
+    } else if (t === "catalogs") {
+      const d = await apiFetch(id + "/product_catalogs", { fields:"name,id,product_count,vertical" });
+      result = d.data || [];
+    } else if (t === "pixels") {
+      const d = await apiFetch(id + "/adspixels", { fields:"name,id,last_fired_time,is_unavailable" });
+      result = d.data || [];
+    }
+    setState({ loading: false, cache: { ...state.cache, [t]: result } });
+  } catch(e) {
+    setState({ loading: false, error: e.message });
+  }
+}
+
+function switchTab(t) {
+  setState({ tab: t });
+  if (!state.cache[t]) loadTab(t);
+}
+
+function connect() {
+  if (!state.token || !state.rawId) return;
+  setState({ screen: "dashboard" });
+  loadTab("campaigns");
+}
+
+function disconnect() {
+  setState({ screen:"setup", cache:{}, error:null, rl:{ app:0, acct:0 } });
+}
+
+function refresh() {
+  setState({ cache: { ...state.cache, [state.tab]: undefined } });
+  loadTab(state.tab);
+}
+
+// ── Render ──────────────────────────────────────────────────────────────────
+
+function render() {
+  const app = document.getElementById("app");
+  app.innerHTML = state.screen === "setup" ? renderSetup() : renderDashboard();
+  bindEvents();
+}
+
+function renderSetup() {
+  return `
+    <div class="setup-card">
+      <h1>Meta Ads Dashboard</h1>
+      <p>Introduce tus credenciales para visualizar campañas, insights, catálogos y píxeles. Solo lectura.</p>
+      <div class="field">
+        <label>Access Token</label>
+        <input type="password" id="inp-token" placeholder="EAAxxxxx..." value="${esc(state.token)}" />
+      </div>
+      <div class="field">
+        <label>Ad Account ID</label>
+        <input type="text" id="inp-id" placeholder="123456789 o act_123456789" value="${esc(state.rawId)}" />
+        <div class="hint">Con o sin el prefijo act_</div>
+      </div>
+      <button class="btn-primary" id="btn-connect" ${!state.token || !state.rawId ? "disabled" : ""}>
+        Conectar →
+      </button>
+    </div>
+  `;
+}
+
+function renderDashboard() {
+  const { rl, tab, loading, error, cache } = state;
+  const maxRl   = Math.max(rl.app, rl.acct);
+  const rlColor = maxRl >= STOP_PCT ? "#ef4444" : maxRl >= WARN_PCT ? "#f59e0b" : "#22c55e";
+  const current = cache[tab];
+
+  return `
+    <div class="header">
+      <div>
+        <h1>Meta Ads Dashboard</h1>
+        <div class="acct">${accountId()}</div>
+      </div>
+      <div class="rl-widget">
+        <div class="rl-label">Uso de API</div>
+        <div class="rl-row">
+          <span>App ${rl.app}%</span>
+          <span>Cuenta ${rl.acct}%</span>
+          <div class="rl-bar"><div class="rl-fill" style="width:${Math.min(maxRl,100)}%;background:${rlColor}"></div></div>
+          <span style="color:${rlColor};font-weight:600">${maxRl}%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      ${TABS.map(t => `<button class="tab ${tab===t.key?"active":""}" data-tab="${t.key}">${t.label}</button>`).join("")}
+      <div class="tab-actions">
+        <button class="btn-sm" id="btn-refresh" ${loading?"disabled":""}>↺ Actualizar</button>
+      </div>
+    </div>
+
+    ${error ? `<div class="error-bar">⚠ ${esc(error)}</div>` : ""}
+
+    ${loading ? `<div class="loading"><div class="spinner"></div><br>Cargando…</div>` : ""}
+
+    ${!loading && tab==="campaigns" && current ? renderCampaigns(current) : ""}
+    ${!loading && tab==="insights"  && current ? renderInsights(current)  : ""}
+    ${!loading && tab==="catalogs"  && current ? renderCatalogs(current)  : ""}
+    ${!loading && tab==="pixels"    && current ? renderPixels(current)    : ""}
+
+    <div class="footer">
+      <span>Solo lectura · Graph API v21.0 · Throttle ${THROTTLE_MS}ms · Pausa a ${STOP_PCT}%</span>
+      <button class="btn-link" id="btn-disconnect">⇠ Desconectar</button>
+    </div>
+  `;
+}
+
+function renderCampaigns(data) {
+  if (!data.length) return `<div class="empty">Sin campañas en esta cuenta</div>`;
+  return `
+    <p style="font-size:13px;color:#6b7280;margin-bottom:12px">${data.length} campaña${data.length!==1?"s":""} encontrada${data.length!==1?"s":""}</p>
+    <div class="table-wrap">
+      <table>
+        <colgroup><col style="width:40%"><col style="width:20%"><col style="width:25%"><col style="width:15%"></colgroup>
+        <thead><tr><th>Nombre</th><th>Estado</th><th>Objetivo</th><th>Creada</th></tr></thead>
+        <tbody>
+          ${data.map(c => {
+            const st = STATUS_MAP[c.status] || { label:c.status, bg:"#f3f4f6", color:"#4b5563" };
+            return `<tr>
+              <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(c.name)}">${esc(c.name)}</td>
+              <td><span class="badge" style="background:${st.bg};color:${st.color}">${st.label}</span></td>
+              <td style="color:#6b7280">${OBJ_MAP[c.objective]||c.objective||"—"}</td>
+              <td style="color:#6b7280">${fmtDate(c.created_time)}</td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderInsights(data) {
+  const totals = data.reduce((a,r) => ({
+    imp:   a.imp   + parseInt(r.impressions||0),
+    clk:   a.clk   + parseInt(r.clicks||0),
+    spend: a.spend + parseFloat(r.spend||0),
+    reach: a.reach + parseInt(r.reach||0),
+  }), { imp:0, clk:0, spend:0, reach:0 });
+  const avgCtr = totals.imp > 0 ? (totals.clk / totals.imp * 100) : 0;
+
+  const statsHtml = data.length ? `
+    <div class="stats-grid">
+      ${[["Impresiones",fmtNum(totals.imp)],["Clics",fmtNum(totals.clk)],["CTR prom.",fmtPct(avgCtr)],["Gasto total",fmtMoney(totals.spend)],["Alcance",fmtNum(totals.reach)]].map(([l,v])=>`
+        <div class="stat-card"><div class="stat-label">${l}</div><div class="stat-value">${v}</div></div>
+      `).join("")}
+    </div>
+  ` : "";
+
+  const tableHtml = !data.length ? `<div class="empty">Sin datos en el período</div>` : `
+    <div class="table-wrap">
+      <table>
+        <colgroup><col style="width:30%"><col style="width:16%"><col style="width:12%"><col style="width:11%"><col style="width:14%"><col style="width:13%"></colgroup>
+        <thead><tr><th>Campaña</th><th style="text-align:right">Impresiones</th><th style="text-align:right">Clics</th><th style="text-align:right">CTR</th><th style="text-align:right">Gasto</th><th style="text-align:right">Alcance</th></tr></thead>
+        <tbody>
+          ${data.map(r => `<tr>
+            <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.campaign_name||"")}">${esc(r.campaign_name||"—")}</td>
+            <td class="td-r">${fmtNum(r.impressions)}</td>
+            <td class="td-r">${fmtNum(r.clicks)}</td>
+            <td class="td-r">${fmtPct(r.ctr)}</td>
+            <td class="td-r">${fmtMoney(r.spend)}</td>
+            <td class="td-r">${fmtNum(r.reach)}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  return `
+    <p style="font-size:13px;color:#6b7280;margin-bottom:12px">Últimos 30 días · nivel campaña</p>
+    ${statsHtml}${tableHtml}
+  `;
+}
+
+function renderCatalogs(data) {
+  if (!data.length) return `<div class="empty">Sin catálogos en esta cuenta</div>`;
+  return `
+    <p style="font-size:13px;color:#6b7280;margin-bottom:12px">${data.length} catálogo${data.length!==1?"s":""}</p>
+    <div class="catalog-grid">
+      ${data.map(c => `
+        <div class="catalog-card">
+          <div class="catalog-name" title="${esc(c.name)}">${esc(c.name)}</div>
+          <div class="catalog-meta">ID: <code>${c.id}</code></div>
+          ${c.product_count!=null ? `<div class="catalog-meta">Productos: <strong>${fmtNum(c.product_count)}</strong></div>` : ""}
+          ${c.vertical ? `<span class="tag">${esc(c.vertical)}</span>` : ""}
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderPixels(data) {
+  if (!data.length) return `<div class="empty">Sin píxeles en esta cuenta</div>`;
+  return `
+    <p style="font-size:13px;color:#6b7280;margin-bottom:12px">${data.length} píxel${data.length!==1?"es":""}</p>
+    <div class="pixel-list">
+      ${data.map(p => {
+        const active = !p.is_unavailable && p.last_fired_time;
+        const dot = p.is_unavailable ? "#ef4444" : active ? "#22c55e" : "#9ca3af";
+        return `
+          <div class="pixel-item">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div class="pixel-dot" style="background:${dot}"></div>
+              <div>
+                <div class="pixel-name">${esc(p.name)}</div>
+                <div class="pixel-id">ID: ${p.id}</div>
+              </div>
+            </div>
+            <div class="pixel-date">
+              <div class="pixel-date-label">Última activación</div>
+              <div class="pixel-date-val">${fmtTs(p.last_fired_time)}</div>
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function esc(s) {
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function bindEvents() {
+  // Setup
+  const inpToken = document.getElementById("inp-token");
+  const inpId    = document.getElementById("inp-id");
+  if (inpToken) {
+    inpToken.addEventListener("input", e => {
+      state.token = e.target.value;
+      const btn = document.getElementById("btn-connect");
+      if (btn) btn.disabled = !state.token || !state.rawId;
+    });
+  }
+  if (inpId) {
+    inpId.addEventListener("input", e => {
+      state.rawId = e.target.value;
+      const btn = document.getElementById("btn-connect");
+      if (btn) btn.disabled = !state.token || !state.rawId;
+    });
+    inpId.addEventListener("keydown", e => { if (e.key === "Enter") connect(); });
+  }
+  const btnConnect = document.getElementById("btn-connect");
+  if (btnConnect) btnConnect.addEventListener("click", connect);
+
+  // Dashboard
+  document.querySelectorAll("[data-tab]").forEach(el => {
+    el.addEventListener("click", () => switchTab(el.dataset.tab));
+  });
+  const btnRefresh = document.getElementById("btn-refresh");
+  if (btnRefresh) btnRefresh.addEventListener("click", refresh);
+  const btnDisconnect = document.getElementById("btn-disconnect");
+  if (btnDisconnect) btnDisconnect.addEventListener("click", disconnect);
+}
+
+render();
+</script>
+</body>
+</html>
