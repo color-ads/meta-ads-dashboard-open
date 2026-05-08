@@ -3,502 +3,309 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meta Ads Dashboard</title>
+  <title>Open C60 · Panel de Leads</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #ffffff;
-      --bg2: #f7f8fa;
-      --border: #e5e7eb;
-      --text: #111827;
-      --text2: #6b7280;
-      --text3: #9ca3af;
-      --blue: #1877F2;
-      --blue-bg: #eff6ff;
+      --navy:    #0F1E3C;
+      --navy2:   #1a2f52;
+      --blue:    #2563EB;
+      --blue-lt: #EFF6FF;
+      --green:   #059669;
+      --bg:      #F4F6FA;
+      --card:    #FFFFFF;
+      --border:  #E5E7EB;
+      --text:    #111827;
+      --text2:   #6B7280;
+      --text3:   #9CA3AF;
+      --r:       14px;
+      --sh:      0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.05);
     }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg2);
-      color: var(--text);
-      min-height: 100vh;
-    }
-    #app { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
     /* Setup */
-    .setup-card {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 2.5rem;
-      max-width: 460px;
-      margin: 4rem auto;
+    .sw { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem; background:var(--navy); }
+    .sl { color:#fff; font-size:30px; font-weight:700; letter-spacing:-.5px; margin-bottom:4px; }
+    .ss { color:rgba(255,255,255,.4); font-size:13px; margin-bottom:2.5rem; letter-spacing:.5px; text-transform:uppercase; }
+    .sc { background:#fff; border-radius:var(--r); padding:2rem; width:100%; max-width:400px; }
+    .sc h2 { font-size:15px; font-weight:600; color:var(--navy); margin-bottom:1.5rem; }
+    .fi { margin-bottom:14px; }
+    .fi label { display:block; font-size:11px; font-weight:600; color:var(--text2); margin-bottom:5px; text-transform:uppercase; letter-spacing:.5px; }
+    .fi input { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; transition:border-color .2s; }
+    .fi input:focus { outline:none; border-color:var(--blue); }
+    .fi .hint { font-size:11px; color:var(--text3); margin-top:4px; }
+    .btn-c { width:100%; padding:12px; background:var(--navy); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; margin-top:6px; transition:background .2s; }
+    .btn-c:hover { background:var(--navy2); }
+    .btn-c:disabled { opacity:.4; cursor:default; }
+
+    /* Topbar */
+    .tb { background:var(--navy); padding:0 2rem; display:flex; align-items:center; justify-content:space-between; height:58px; position:sticky; top:0; z-index:100; }
+    .tb-brand .tb-logo { color:#fff; font-size:17px; font-weight:700; letter-spacing:-.3px; }
+    .tb-brand .tb-sub  { color:rgba(255,255,255,.4); font-size:10px; text-transform:uppercase; letter-spacing:.8px; margin-top:1px; }
+    .tb-right { display:flex; align-items:center; gap:16px; }
+    .upd { font-size:11px; color:rgba(255,255,255,.38); }
+    .rl-row { display:flex; align-items:center; gap:6px; font-size:11px; color:rgba(255,255,255,.38); }
+    .rl-bar { width:44px; height:4px; border-radius:2px; background:rgba(255,255,255,.12); overflow:hidden; }
+    .rl-fill { height:100%; border-radius:2px; transition:width .4s; }
+    .btn-out { background:rgba(255,255,255,.08); border:none; color:rgba(255,255,255,.6); padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer; }
+    .btn-out:hover { background:rgba(255,255,255,.15); }
+
+    /* Tab bar */
+    .tabbar { background:var(--card); border-bottom:1px solid var(--border); padding:0 2rem; display:flex; align-items:center; }
+    .tab { background:none; border:none; border-bottom:2.5px solid transparent; padding:14px 18px; font-size:13px; font-weight:500; color:var(--text2); cursor:pointer; }
+    .tab:hover { color:var(--text); }
+    .tab.on { color:var(--blue); border-bottom-color:var(--blue); }
+    .tab-r { margin-left:auto; }
+    .btn-ref { background:var(--blue-lt); color:var(--blue); border:none; border-radius:8px; padding:7px 14px; font-size:12px; font-weight:500; cursor:pointer; }
+    .btn-ref:hover { opacity:.85; }
+    .btn-ref:disabled { opacity:.4; cursor:default; }
+
+    /* Main */
+    .main { padding:2rem; max-width:1200px; margin:0 auto; }
+
+    /* KPI grid */
+    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(155px,1fr)); gap:14px; margin-bottom:2rem; }
+    .kc { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:1.25rem 1.5rem; box-shadow:var(--sh); }
+    .kc.dark { background:var(--navy); border-color:var(--navy); }
+    .kc-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.6px; color:var(--text2); margin-bottom:6px; }
+    .kc.dark .kc-label { color:rgba(255,255,255,.45); }
+    .kc-val { font-size:28px; font-weight:700; letter-spacing:-1px; }
+    .kc.dark .kc-val { color:#fff; }
+    .kc-sub { font-size:11px; color:var(--text3); margin-top:4px; }
+    .kc.dark .kc-sub { color:rgba(255,255,255,.3); }
+
+    /* Chart card */
+    .ch-card { background:var(--card); border:1px solid var(--border); border-radius:var(--r); box-shadow:var(--sh); padding:1.5rem; margin-bottom:2rem; }
+    .ch-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; }
+    .ch-title { font-size:15px; font-weight:600; }
+    .ch-sub   { font-size:12px; color:var(--text2); margin-top:2px; }
+    .ch-wrap  { position:relative; height:260px; }
+
+    /* Table card */
+    .tc { background:var(--card); border:1px solid var(--border); border-radius:var(--r); box-shadow:var(--sh); overflow:hidden; margin-bottom:2rem; }
+    .tc-head { padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); }
+    .tc-title { font-size:15px; font-weight:600; }
+    .tw { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th { padding:10px 16px; text-align:left; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--text2); background:#FAFAFA; border-bottom:1px solid var(--border); }
+    td { padding:12px 16px; border-bottom:1px solid #F3F4F6; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#FAFAFA; }
+    .r { text-align:right; }
+    .td-m { font-weight:600; }
+    .td-l { font-weight:700; color:var(--green); font-size:14px; }
+    .td-n { font-family:'Courier New',monospace; }
+    .badge { display:inline-block; font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; }
+
+    /* States */
+    .loading { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:4rem; color:var(--text2); gap:12px; font-size:14px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .spin { width:22px; height:22px; border:2.5px solid var(--border); border-top-color:var(--blue); border-radius:50%; animation:spin .7s linear infinite; }
+    .err { background:#FEF2F2; border:1px solid #FECACA; border-radius:10px; padding:12px 16px; font-size:13px; color:#B91C1C; margin-bottom:1rem; }
+    .empty { text-align:center; padding:3rem; color:var(--text2); font-size:14px; }
+    .foot { text-align:center; padding:2rem; font-size:11px; color:var(--text3); }
+
+    @media(max-width:600px){
+      .main{padding:1rem} .tb{padding:0 1rem} .tabbar{padding:0 .5rem}
+      .kc-val{font-size:22px} .upd{display:none}
     }
-    .setup-card h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
-    .setup-card p  { font-size: 14px; color: var(--text2); margin-bottom: 2rem; line-height: 1.6; }
-    .field { margin-bottom: 16px; }
-    .field label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 5px; }
-    .field input {
-      width: 100%; padding: 10px 14px;
-      border: 1px solid var(--border); border-radius: 10px;
-      font-size: 14px; background: var(--bg2);
-      transition: border-color .2s;
-    }
-    .field input:focus { outline: none; border-color: var(--blue); background: #fff; }
-    .field .hint { font-size: 12px; color: var(--text3); margin-top: 4px; }
-    .btn-primary {
-      width: 100%; padding: 11px; background: var(--blue); color: white;
-      border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
-      cursor: pointer; margin-top: 8px; transition: opacity .2s;
-    }
-    .btn-primary:hover { opacity: .88; }
-    .btn-primary:disabled { opacity: .4; cursor: default; }
-
-    /* Header */
-    .header {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      margin-bottom: 1.5rem; flex-wrap: wrap; gap: 12px;
-    }
-    .header h1 { font-size: 20px; font-weight: 600; margin-bottom: 2px; }
-    .header .acct { font-size: 12px; color: var(--text2); font-family: monospace; }
-    .rl-widget { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
-    .rl-label  { font-size: 11px; color: var(--text2); }
-    .rl-row    { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text2); }
-    .rl-bar    { width: 70px; height: 5px; border-radius: 3px; background: var(--border); overflow: hidden; }
-    .rl-fill   { height: 100%; border-radius: 3px; transition: width .4s; }
-
-    /* Tabs */
-    .tabs {
-      display: flex; align-items: center;
-      border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;
-    }
-    .tab {
-      background: none; border: none; border-bottom: 2px solid transparent;
-      padding: 10px 18px; font-size: 14px; cursor: pointer; color: var(--text2);
-      transition: color .15s; white-space: nowrap;
-    }
-    .tab:hover  { color: var(--text); }
-    .tab.active { border-bottom-color: var(--blue); color: var(--blue); font-weight: 500; }
-    .tab-actions { margin-left: auto; }
-    .btn-sm {
-      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
-      padding: 6px 14px; font-size: 13px; cursor: pointer;
-    }
-    .btn-sm:hover { background: var(--bg2); }
-    .btn-sm:disabled { opacity: .4; cursor: default; }
-
-    /* Error */
-    .error-bar {
-      background: #fef2f2; border: 1px solid #fca5a5;
-      border-radius: 10px; padding: 10px 14px; margin-bottom: 1rem;
-      font-size: 13px; color: #b91c1c; display: flex; align-items: center; gap: 8px;
-    }
-
-    /* Loading */
-    .loading { text-align: center; padding: 3rem; color: var(--text2); font-size: 14px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: 8px; }
-
-    /* Stats */
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: 10px; margin-bottom: 1.5rem; }
-    .stat-card  { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
-    .stat-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
-    .stat-value { font-size: 20px; font-weight: 600; font-family: 'Courier New', monospace; }
-
-    /* Table */
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
-    th { text-align: left; padding: 9px 12px; font-size: 12px; color: var(--text2); font-weight: 500; border-bottom: 1px solid var(--border); }
-    td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; }
-    tr:hover td { background: var(--bg2); }
-    .td-r { text-align: right; font-family: monospace; }
-
-    /* Badge */
-    .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 20px; }
-
-    /* Catalog grid */
-    .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 12px; }
-    .catalog-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; }
-    .catalog-name { font-weight: 600; font-size: 14px; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .catalog-meta { font-size: 12px; color: var(--text2); margin-bottom: 3px; }
-    .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 6px; background: var(--blue-bg); color: var(--blue); margin-top: 6px; }
-
-    /* Pixel list */
-    .pixel-list { display: flex; flex-direction: column; gap: 8px; }
-    .pixel-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .pixel-dot  { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-    .pixel-name { font-weight: 500; font-size: 14px; }
-    .pixel-id   { font-size: 12px; color: var(--text2); font-family: monospace; }
-    .pixel-date { text-align: right; }
-    .pixel-date-label { font-size: 11px; color: var(--text2); }
-    .pixel-date-val   { font-size: 13px; }
-
-    /* Empty */
-    .empty { text-align: center; padding: 3rem; color: var(--text2); font-size: 14px; }
-
-    /* Footer */
-    .footer {
-      margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);
-      display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 8px; font-size: 12px; color: var(--text3);
-    }
-    .btn-link { background: none; border: none; cursor: pointer; font-size: 12px; color: var(--text2); }
-    .btn-link:hover { color: var(--text); }
   </style>
 </head>
 <body>
 <div id="app"></div>
-
 <script>
-const API = "https://graph.facebook.com/v21.0";
-const THROTTLE_MS = 300;
-const WARN_PCT = 75;
-const STOP_PCT = 92;
+const API="https://graph.facebook.com/v21.0", THROTTLE=300, WARN=75, STOP=92, SINCE="2025-01-01";
+const MES=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+const MES_F=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const ST={ACTIVE:{l:"Activa",bg:"#DCFCE7",c:"#166534"},PAUSED:{l:"Pausada",bg:"#FEF9C3",c:"#854D0E"},ARCHIVED:{l:"Archivada",bg:"#F3F4F6",c:"#4B5563"},DELETED:{l:"Eliminada",bg:"#FEE2E2",c:"#991B1B"},CAMPAIGN_PAUSED:{l:"Camp. pausada",bg:"#FEF9C3",c:"#854D0E"},PENDING_REVIEW:{l:"En revisión",bg:"#DBEAFE",c:"#1E40AF"},DISAPPROVED:{l:"Rechazada",bg:"#FEE2E2",c:"#991B1B"},WITH_ISSUES:{l:"Con problemas",bg:"#FEE2E2",c:"#991B1B"}};
+const OBJ={OUTCOME_LEADS:"Leads",OUTCOME_SALES:"Ventas",OUTCOME_TRAFFIC:"Tráfico",OUTCOME_ENGAGEMENT:"Engagement",LEAD_GENERATION:"Generación de leads",OUTCOME_AWARENESS:"Reconocimiento"};
 
-const fmtNum   = n => n == null ? "—" : Number(n).toLocaleString("es-MX");
-const fmtPct   = n => n == null ? "—" : parseFloat(n).toFixed(2) + "%";
-const fmtMoney = n => n == null ? "—" : "$" + parseFloat(n).toFixed(2);
-const fmtDate  = s => s ? new Date(s).toLocaleDateString("es-MX") : "—";
-const fmtTs    = s => s ? new Date(s * 1000).toLocaleDateString("es-MX") : "Sin datos";
+const fn=n=>n==null?"—":Number(n).toLocaleString("es-MX");
+const fp=n=>n==null?"—":parseFloat(n).toFixed(2)+"%";
+const fd=s=>s?new Date(s).toLocaleDateString("es-MX"):"—";
+const fNow=()=>{const d=new Date();return d.toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"})+" · "+d.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});};
+const esc=s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
-const STATUS_MAP = {
-  ACTIVE:          { label:"Activa",          bg:"#dcfce7", color:"#166534" },
-  PAUSED:          { label:"Pausada",         bg:"#fef9c3", color:"#854d0e" },
-  ARCHIVED:        { label:"Archivada",       bg:"#f3f4f6", color:"#4b5563" },
-  DELETED:         { label:"Eliminada",       bg:"#fee2e2", color:"#991b1b" },
-  CAMPAIGN_PAUSED: { label:"Camp. pausada",   bg:"#fef9c3", color:"#854d0e" },
-  PENDING_REVIEW:  { label:"En revisión",     bg:"#dbeafe", color:"#1e40af" },
-  DISAPPROVED:     { label:"Rechazada",       bg:"#fee2e2", color:"#991b1b" },
-  WITH_ISSUES:     { label:"Con problemas",   bg:"#fee2e2", color:"#991b1b" },
-};
-
-const OBJ_MAP = {
-  OUTCOME_SALES:"Ventas", OUTCOME_LEADS:"Leads", OUTCOME_TRAFFIC:"Tráfico",
-  OUTCOME_ENGAGEMENT:"Engagement", OUTCOME_APP_PROMOTION:"App",
-  OUTCOME_AWARENESS:"Reconocimiento", LINK_CLICKS:"Clics",
-  CONVERSIONS:"Conversiones", BRAND_AWARENESS:"Marca",
-  REACH:"Alcance", VIDEO_VIEWS:"Video", MESSAGES:"Mensajes",
-};
-
-const TABS = [
-  { key:"campaigns", label:"Campañas"  },
-  { key:"insights",  label:"Insights"  },
-  { key:"catalogs",  label:"Catálogos" },
-  { key:"pixels",    label:"Píxeles"   },
-];
-
-let state = {
-  screen: "setup",
-  token: "",
-  rawId: "",
-  tab: "campaigns",
-  rl: { app: 0, acct: 0 },
-  cache: {},
-  loading: false,
-  error: null,
-};
-
-let lastCall = 0;
-
-function setState(patch) {
-  state = { ...state, ...patch };
-  render();
+function leads(actions){
+  if(!actions||!Array.isArray(actions))return 0;
+  const t=["lead","offsite_conversion.fb_pixel_lead","onsite_conversion.lead_grouped","onsite_conversion.messaging_conversation_started_7d"];
+  return actions.filter(a=>t.includes(a.action_type)).reduce((s,a)=>s+parseInt(a.value||0),0);
 }
 
-function accountId() {
-  return state.rawId ? "act_" + state.rawId.replace(/^act_/, "") : "";
+let S={screen:"setup",token:"",rawId:"",tab:"perf",rl:{app:0,acct:0},monthly:null,campaigns:null,loading:false,error:null,updAt:null};
+let lastT=0, chart=null;
+
+const set=p=>{S={...S,...p};render();};
+const aid=()=>S.rawId?"act_"+S.rawId.replace(/^act_/,""):"";
+
+function readH(h){
+  try{
+    const a=JSON.parse(h.get("x-app-usage")||"{}"),b=JSON.parse(h.get("x-ad-account-usage")||"{}");
+    const app=Math.max(a.call_count||0,a.total_cputime||0,a.total_time||0),acct=b.acc_id_util_pct||0;
+    S.rl={app:Math.round(app),acct:Math.round(acct)};return Math.max(app,acct);
+  }catch{return 0;}
 }
 
-function readHeaders(headers) {
-  try {
-    const a = JSON.parse(headers.get("x-app-usage") || "{}");
-    const b = JSON.parse(headers.get("x-ad-account-usage") || "{}");
-    const app  = Math.max(a.call_count||0, a.total_cputime||0, a.total_time||0);
-    const acct = b.acc_id_util_pct || 0;
-    setState({ rl: { app: Math.round(app), acct: Math.round(acct) } });
-    return Math.max(app, acct);
-  } catch { return 0; }
+async function api(path,params={}){
+  const w=THROTTLE-(Date.now()-lastT);if(w>0)await new Promise(r=>setTimeout(r,w));lastT=Date.now();
+  const u=new URL(API+"/"+path);u.searchParams.set("access_token",S.token);
+  for(const[k,v]of Object.entries(params))u.searchParams.set(k,v);
+  const res=await fetch(u.toString());const pct=readH(res.headers);
+  if(pct>=STOP)throw new Error("Límite de API ("+Math.round(pct)+"%). Espera unos minutos.");
+  if(pct>=WARN)await new Promise(r=>setTimeout(r,800));
+  const j=await res.json();if(j.error)throw new Error(j.error.message);return j;
 }
 
-async function apiFetch(path, params = {}) {
-  const wait = THROTTLE_MS - (Date.now() - lastCall);
-  if (wait > 0) await new Promise(r => setTimeout(r, wait));
-  lastCall = Date.now();
-  const u = new URL(API + "/" + path);
-  u.searchParams.set("access_token", state.token);
-  for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
-  const res  = await fetch(u.toString());
-  const pct  = readHeaders(res.headers);
-  if (pct >= STOP_PCT) throw new Error("Límite de API: " + Math.round(pct) + "% — pausa automática.");
-  if (pct >= WARN_PCT) await new Promise(r => setTimeout(r, 800));
-  const json = await res.json();
-  if (json.error) throw new Error("[" + (json.error.code || "ERR") + "] " + json.error.message);
-  return json;
+async function loadPerf(){
+  set({loading:true,error:null});
+  const today=new Date().toISOString().split("T")[0];
+  try{
+    const d=await api(aid()+"/insights",{fields:"impressions,clicks,ctr,reach,frequency,actions",time_range:JSON.stringify({since:SINCE,until:today}),time_increment:"monthly",level:"account",limit:50});
+    set({loading:false,monthly:d.data||[],updAt:fNow()});
+  }catch(e){set({loading:false,error:e.message});}
 }
 
-async function loadTab(t) {
-  setState({ loading: true, error: null });
-  const id = accountId();
-  try {
-    let result;
-    if (t === "campaigns") {
-      const d = await apiFetch(id + "/campaigns", { fields:"name,status,objective,created_time", limit:100 });
-      result = d.data || [];
-    } else if (t === "insights") {
-      const d = await apiFetch(id + "/insights", { fields:"campaign_name,impressions,clicks,ctr,spend,reach", date_preset:"last_30d", level:"campaign", limit:50 });
-      result = d.data || [];
-    } else if (t === "catalogs") {
-      const d = await apiFetch(id + "/product_catalogs", { fields:"name,id,product_count,vertical" });
-      result = d.data || [];
-    } else if (t === "pixels") {
-      const d = await apiFetch(id + "/adspixels", { fields:"name,id,last_fired_time,is_unavailable" });
-      result = d.data || [];
-    }
-    setState({ loading: false, cache: { ...state.cache, [t]: result } });
-  } catch(e) {
-    setState({ loading: false, error: e.message });
-  }
+async function loadCamp(){
+  set({loading:true,error:null});
+  try{
+    const d=await api(aid()+"/campaigns",{fields:"name,status,objective,created_time,insights{actions,impressions,clicks,ctr}",limit:100});
+    set({loading:false,campaigns:d.data||[],updAt:fNow()});
+  }catch(e){set({loading:false,error:e.message});}
 }
 
-function switchTab(t) {
-  setState({ tab: t });
-  if (!state.cache[t]) loadTab(t);
+function switchTab(t){set({tab:t});if(t==="perf"&&!S.monthly)loadPerf();if(t==="camp"&&!S.campaigns)loadCamp();}
+function connect(){if(!S.token||!S.rawId)return;set({screen:"dashboard"});loadPerf();}
+function disconnect(){set({screen:"setup",monthly:null,campaigns:null,error:null,rl:{app:0,acct:0},updAt:null});}
+function refresh(){if(S.tab==="perf"){set({monthly:null});loadPerf();}else{set({campaigns:null});loadCamp();}}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render(){
+  document.getElementById("app").innerHTML=S.screen==="setup"?rSetup():rDash();
+  bind();
+  if(S.screen==="dashboard"&&S.tab==="perf"&&S.monthly&&!S.loading)drawChart();
 }
 
-function connect() {
-  if (!state.token || !state.rawId) return;
-  setState({ screen: "dashboard" });
-  loadTab("campaigns");
-}
-
-function disconnect() {
-  setState({ screen:"setup", cache:{}, error:null, rl:{ app:0, acct:0 } });
-}
-
-function refresh() {
-  setState({ cache: { ...state.cache, [state.tab]: undefined } });
-  loadTab(state.tab);
-}
-
-// ── Render ──────────────────────────────────────────────────────────────────
-
-function render() {
-  const app = document.getElementById("app");
-  app.innerHTML = state.screen === "setup" ? renderSetup() : renderDashboard();
-  bindEvents();
-}
-
-function renderSetup() {
-  return `
-    <div class="setup-card">
-      <h1>Meta Ads Dashboard</h1>
-      <p>Introduce tus credenciales para visualizar campañas, insights, catálogos y píxeles. Solo lectura.</p>
-      <div class="field">
-        <label>Access Token</label>
-        <input type="password" id="inp-token" placeholder="EAAxxxxx..." value="${esc(state.token)}" />
-      </div>
-      <div class="field">
-        <label>Ad Account ID</label>
-        <input type="text" id="inp-id" placeholder="123456789 o act_123456789" value="${esc(state.rawId)}" />
-        <div class="hint">Con o sin el prefijo act_</div>
-      </div>
-      <button class="btn-primary" id="btn-connect" ${!state.token || !state.rawId ? "disabled" : ""}>
-        Conectar →
-      </button>
+function rSetup(){return`
+  <div class="sw">
+    <div class="sl">Open C60</div>
+    <div class="ss">Panel de Generación de Leads</div>
+    <div class="sc">
+      <h2>Conectar cuenta de Meta Ads</h2>
+      <div class="fi"><label>Access Token</label><input type="password" id="it" placeholder="EAAxxxxx..." value="${esc(S.token)}"/></div>
+      <div class="fi"><label>Ad Account ID</label><input type="text" id="ii" placeholder="act_123456789" value="${esc(S.rawId)}"/><div class="hint">Con o sin el prefijo act_</div></div>
+      <button class="btn-c" id="bc" ${!S.token||!S.rawId?"disabled":""}>Conectar →</button>
     </div>
-  `;
-}
+  </div>`;}
 
-function renderDashboard() {
-  const { rl, tab, loading, error, cache } = state;
-  const maxRl   = Math.max(rl.app, rl.acct);
-  const rlColor = maxRl >= STOP_PCT ? "#ef4444" : maxRl >= WARN_PCT ? "#f59e0b" : "#22c55e";
-  const current = cache[tab];
-
-  return `
-    <div class="header">
-      <div>
-        <h1>Meta Ads Dashboard</h1>
-        <div class="acct">${accountId()}</div>
-      </div>
-      <div class="rl-widget">
-        <div class="rl-label">Uso de API</div>
-        <div class="rl-row">
-          <span>App ${rl.app}%</span>
-          <span>Cuenta ${rl.acct}%</span>
-          <div class="rl-bar"><div class="rl-fill" style="width:${Math.min(maxRl,100)}%;background:${rlColor}"></div></div>
-          <span style="color:${rlColor};font-weight:600">${maxRl}%</span>
-        </div>
-      </div>
+function rDash(){
+  const mx=Math.max(S.rl.app,S.rl.acct);
+  const rc=mx>=STOP?"#ef4444":mx>=WARN?"#f59e0b":"#22c55e";
+  return`
+  <div class="tb">
+    <div class="tb-brand"><div class="tb-logo">Open C60</div><div class="tb-sub">Panel de Leads · Meta Ads</div></div>
+    <div class="tb-right">
+      ${S.updAt?`<div class="upd">Actualizado: ${S.updAt}</div>`:""}
+      <div class="rl-row"><div class="rl-bar"><div class="rl-fill" style="width:${Math.min(mx,100)}%;background:${rc}"></div></div>API ${mx}%</div>
+      <button class="btn-out" id="bd">Salir</button>
     </div>
+  </div>
+  <div class="tabbar">
+    <button class="tab ${S.tab==="perf"?"on":""}" data-tab="perf">Rendimiento</button>
+    <button class="tab ${S.tab==="camp"?"on":""}" data-tab="camp">Campañas</button>
+    <div class="tab-r"><button class="btn-ref" id="br" ${S.loading?"disabled":""}>↺ Actualizar</button></div>
+  </div>
+  <div class="main">
+    ${S.error?`<div class="err">⚠ ${esc(S.error)}</div>`:""}
+    ${S.loading?`<div class="loading"><div class="spin"></div><span>Cargando datos…</span></div>`:""}
+    ${!S.loading&&S.tab==="perf"&&S.monthly?rPerf():""}
+    ${!S.loading&&S.tab==="camp"&&S.campaigns?rCamp():""}
+  </div>
+  <div class="foot">Open C60 · Panel de Leads · Datos desde enero 2025</div>`;}
 
-    <div class="tabs">
-      ${TABS.map(t => `<button class="tab ${tab===t.key?"active":""}" data-tab="${t.key}">${t.label}</button>`).join("")}
-      <div class="tab-actions">
-        <button class="btn-sm" id="btn-refresh" ${loading?"disabled":""}>↺ Actualizar</button>
-      </div>
-    </div>
+function rPerf(){
+  const data=S.monthly;
+  if(!data.length)return`<div class="empty">Sin datos desde enero 2025.</div>`;
+  const tot=data.reduce((a,r)=>({l:a.l+leads(r.actions),i:a.i+parseInt(r.impressions||0),c:a.c+parseInt(r.clicks||0),r:a.r+parseInt(r.reach||0)}),{l:0,i:0,c:0,r:0});
+  const ctr=tot.i>0?(tot.c/tot.i*100):0, conv=tot.c>0?(tot.l/tot.c*100):0;
+  return`
+  <div class="kpi-grid">
+    <div class="kc dark"><div class="kc-label">Leads totales</div><div class="kc-val">${fn(tot.l)}</div><div class="kc-sub">Desde enero 2025</div></div>
+    <div class="kc"><div class="kc-label">Impresiones</div><div class="kc-val">${fn(tot.i)}</div><div class="kc-sub">Total acumulado</div></div>
+    <div class="kc"><div class="kc-label">Alcance</div><div class="kc-val">${fn(tot.r)}</div><div class="kc-sub">Personas únicas</div></div>
+    <div class="kc"><div class="kc-label">CTR promedio</div><div class="kc-val">${fp(ctr)}</div><div class="kc-sub">Clics / Impresiones</div></div>
+    <div class="kc"><div class="kc-label">Tasa conversión</div><div class="kc-val">${fp(conv)}</div><div class="kc-sub">Leads / Clics</div></div>
+  </div>
+  <div class="ch-card">
+    <div class="ch-head"><div><div class="ch-title">Leads por mes</div><div class="ch-sub">Evolución mensual · enero 2025 – hoy</div></div></div>
+    <div class="ch-wrap"><canvas id="lc" role="img" aria-label="Gráfica de leads por mes desde enero 2025"></canvas></div>
+  </div>
+  <div class="tc">
+    <div class="tc-head"><div class="tc-title">Desglose mensual</div></div>
+    <div class="tw"><table>
+      <thead><tr><th>Mes</th><th class="r">Leads</th><th class="r">Impresiones</th><th class="r">Alcance</th><th class="r">Clics</th><th class="r">CTR</th><th class="r">Conv.</th></tr></thead>
+      <tbody>
+        ${[...data].reverse().map(r=>{
+          const l=leads(r.actions),i=parseInt(r.impressions||0),c=parseInt(r.clicks||0);
+          const conv=c>0?(l/c*100).toFixed(2)+"%":"—";
+          const d=r.date_start?new Date(r.date_start+"T12:00:00"):null;
+          const lbl=d?MES_F[d.getMonth()]+" "+d.getFullYear():r.date_start||"—";
+          return`<tr><td class="td-m">${esc(lbl)}</td><td class="r td-l">${fn(l)}</td><td class="r td-n">${fn(i)}</td><td class="r td-n">${fn(parseInt(r.reach||0))}</td><td class="r td-n">${fn(c)}</td><td class="r">${fp(r.ctr)}</td><td class="r">${conv}</td></tr>`;
+        }).join("")}
+      </tbody>
+    </table></div>
+  </div>`;}
 
-    ${error ? `<div class="error-bar">⚠ ${esc(error)}</div>` : ""}
+function rCamp(){
+  const data=S.campaigns;
+  if(!data.length)return`<div class="empty">Sin campañas.</div>`;
+  return`
+  <div class="tc">
+    <div class="tc-head"><div class="tc-title">${data.length} campaña${data.length!==1?"s":""}</div></div>
+    <div class="tw"><table>
+      <thead><tr><th style="width:38%">Campaña</th><th>Estado</th><th>Objetivo</th><th class="r">Leads</th><th class="r">Impresiones</th><th class="r">CTR</th><th>Creada</th></tr></thead>
+      <tbody>
+        ${data.map(c=>{
+          const st=ST[c.status]||{l:c.status,bg:"#F3F4F6",c:"#4B5563"};
+          const ins=c.insights?.data?.[0];
+          const l=ins?leads(ins.actions):null;
+          return`<tr>
+            <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:0;min-width:140px" title="${esc(c.name)}">${esc(c.name)}</td>
+            <td><span class="badge" style="background:${st.bg};color:${st.c}">${st.l}</span></td>
+            <td style="color:#6B7280;font-size:12px">${OBJ[c.objective]||c.objective||"—"}</td>
+            <td class="r td-l">${l!==null?fn(l):"—"}</td>
+            <td class="r td-n">${ins?fn(ins.impressions):"—"}</td>
+            <td class="r">${ins?fp(ins.ctr):"—"}</td>
+            <td style="color:#6B7280;font-size:12px">${fd(c.created_time)}</td>
+          </tr>`;
+        }).join("")}
+      </tbody>
+    </table></div>
+  </div>`;}
 
-    ${loading ? `<div class="loading"><div class="spinner"></div><br>Cargando…</div>` : ""}
-
-    ${!loading && tab==="campaigns" && current ? renderCampaigns(current) : ""}
-    ${!loading && tab==="insights"  && current ? renderInsights(current)  : ""}
-    ${!loading && tab==="catalogs"  && current ? renderCatalogs(current)  : ""}
-    ${!loading && tab==="pixels"    && current ? renderPixels(current)    : ""}
-
-    <div class="footer">
-      <span>Solo lectura · Graph API v21.0 · Throttle ${THROTTLE_MS}ms · Pausa a ${STOP_PCT}%</span>
-      <button class="btn-link" id="btn-disconnect">⇠ Desconectar</button>
-    </div>
-  `;
-}
-
-function renderCampaigns(data) {
-  if (!data.length) return `<div class="empty">Sin campañas en esta cuenta</div>`;
-  return `
-    <p style="font-size:13px;color:#6b7280;margin-bottom:12px">${data.length} campaña${data.length!==1?"s":""} encontrada${data.length!==1?"s":""}</p>
-    <div class="table-wrap">
-      <table>
-        <colgroup><col style="width:40%"><col style="width:20%"><col style="width:25%"><col style="width:15%"></colgroup>
-        <thead><tr><th>Nombre</th><th>Estado</th><th>Objetivo</th><th>Creada</th></tr></thead>
-        <tbody>
-          ${data.map(c => {
-            const st = STATUS_MAP[c.status] || { label:c.status, bg:"#f3f4f6", color:"#4b5563" };
-            return `<tr>
-              <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(c.name)}">${esc(c.name)}</td>
-              <td><span class="badge" style="background:${st.bg};color:${st.color}">${st.label}</span></td>
-              <td style="color:#6b7280">${OBJ_MAP[c.objective]||c.objective||"—"}</td>
-              <td style="color:#6b7280">${fmtDate(c.created_time)}</td>
-            </tr>`;
-          }).join("")}
-        </tbody>
-      </table>
-    </div>
-  `;
-}
-
-function renderInsights(data) {
-  const totals = data.reduce((a,r) => ({
-    imp:   a.imp   + parseInt(r.impressions||0),
-    clk:   a.clk   + parseInt(r.clicks||0),
-    spend: a.spend + parseFloat(r.spend||0),
-    reach: a.reach + parseInt(r.reach||0),
-  }), { imp:0, clk:0, spend:0, reach:0 });
-  const avgCtr = totals.imp > 0 ? (totals.clk / totals.imp * 100) : 0;
-
-  const statsHtml = data.length ? `
-    <div class="stats-grid">
-      ${[["Impresiones",fmtNum(totals.imp)],["Clics",fmtNum(totals.clk)],["CTR prom.",fmtPct(avgCtr)],["Gasto total",fmtMoney(totals.spend)],["Alcance",fmtNum(totals.reach)]].map(([l,v])=>`
-        <div class="stat-card"><div class="stat-label">${l}</div><div class="stat-value">${v}</div></div>
-      `).join("")}
-    </div>
-  ` : "";
-
-  const tableHtml = !data.length ? `<div class="empty">Sin datos en el período</div>` : `
-    <div class="table-wrap">
-      <table>
-        <colgroup><col style="width:30%"><col style="width:16%"><col style="width:12%"><col style="width:11%"><col style="width:14%"><col style="width:13%"></colgroup>
-        <thead><tr><th>Campaña</th><th style="text-align:right">Impresiones</th><th style="text-align:right">Clics</th><th style="text-align:right">CTR</th><th style="text-align:right">Gasto</th><th style="text-align:right">Alcance</th></tr></thead>
-        <tbody>
-          ${data.map(r => `<tr>
-            <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.campaign_name||"")}">${esc(r.campaign_name||"—")}</td>
-            <td class="td-r">${fmtNum(r.impressions)}</td>
-            <td class="td-r">${fmtNum(r.clicks)}</td>
-            <td class="td-r">${fmtPct(r.ctr)}</td>
-            <td class="td-r">${fmtMoney(r.spend)}</td>
-            <td class="td-r">${fmtNum(r.reach)}</td>
-          </tr>`).join("")}
-        </tbody>
-      </table>
-    </div>
-  `;
-
-  return `
-    <p style="font-size:13px;color:#6b7280;margin-bottom:12px">Últimos 30 días · nivel campaña</p>
-    ${statsHtml}${tableHtml}
-  `;
-}
-
-function renderCatalogs(data) {
-  if (!data.length) return `<div class="empty">Sin catálogos en esta cuenta</div>`;
-  return `
-    <p style="font-size:13px;color:#6b7280;margin-bottom:12px">${data.length} catálogo${data.length!==1?"s":""}</p>
-    <div class="catalog-grid">
-      ${data.map(c => `
-        <div class="catalog-card">
-          <div class="catalog-name" title="${esc(c.name)}">${esc(c.name)}</div>
-          <div class="catalog-meta">ID: <code>${c.id}</code></div>
-          ${c.product_count!=null ? `<div class="catalog-meta">Productos: <strong>${fmtNum(c.product_count)}</strong></div>` : ""}
-          ${c.vertical ? `<span class="tag">${esc(c.vertical)}</span>` : ""}
-        </div>
-      `).join("")}
-    </div>
-  `;
-}
-
-function renderPixels(data) {
-  if (!data.length) return `<div class="empty">Sin píxeles en esta cuenta</div>`;
-  return `
-    <p style="font-size:13px;color:#6b7280;margin-bottom:12px">${data.length} píxel${data.length!==1?"es":""}</p>
-    <div class="pixel-list">
-      ${data.map(p => {
-        const active = !p.is_unavailable && p.last_fired_time;
-        const dot = p.is_unavailable ? "#ef4444" : active ? "#22c55e" : "#9ca3af";
-        return `
-          <div class="pixel-item">
-            <div style="display:flex;align-items:center;gap:12px">
-              <div class="pixel-dot" style="background:${dot}"></div>
-              <div>
-                <div class="pixel-name">${esc(p.name)}</div>
-                <div class="pixel-id">ID: ${p.id}</div>
-              </div>
-            </div>
-            <div class="pixel-date">
-              <div class="pixel-date-label">Última activación</div>
-              <div class="pixel-date-val">${fmtTs(p.last_fired_time)}</div>
-            </div>
-          </div>
-        `;
-      }).join("")}
-    </div>
-  `;
-}
-
-function esc(s) {
-  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-
-function bindEvents() {
-  // Setup
-  const inpToken = document.getElementById("inp-token");
-  const inpId    = document.getElementById("inp-id");
-  if (inpToken) {
-    inpToken.addEventListener("input", e => {
-      state.token = e.target.value;
-      const btn = document.getElementById("btn-connect");
-      if (btn) btn.disabled = !state.token || !state.rawId;
-    });
-  }
-  if (inpId) {
-    inpId.addEventListener("input", e => {
-      state.rawId = e.target.value;
-      const btn = document.getElementById("btn-connect");
-      if (btn) btn.disabled = !state.token || !state.rawId;
-    });
-    inpId.addEventListener("keydown", e => { if (e.key === "Enter") connect(); });
-  }
-  const btnConnect = document.getElementById("btn-connect");
-  if (btnConnect) btnConnect.addEventListener("click", connect);
-
-  // Dashboard
-  document.querySelectorAll("[data-tab]").forEach(el => {
-    el.addEventListener("click", () => switchTab(el.dataset.tab));
+function drawChart(){
+  const canvas=document.getElementById("lc");
+  if(!canvas||!S.monthly)return;
+  if(chart){chart.destroy();chart=null;}
+  const sorted=[...S.monthly].sort((a,b)=>a.date_start>b.date_start?1:-1);
+  const labels=sorted.map(r=>{if(!r.date_start)return"";const d=new Date(r.date_start+"T12:00:00");return MES[d.getMonth()]+" '"+String(d.getFullYear()).slice(2);});
+  const vals=sorted.map(r=>leads(r.actions));
+  const maxIdx=vals.indexOf(Math.max(...vals));
+  chart=new Chart(canvas,{
+    type:"bar",
+    data:{labels,datasets:[{label:"Leads",data:vals,backgroundColor:vals.map((_,i)=>i===vals.length-1?"#2563EB":i===maxIdx?"#059669":"#0F1E3C"),borderRadius:6,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>labels[ctx[0].dataIndex],label:ctx=>" "+ctx.raw.toLocaleString("es-MX")+" leads"}}},scales:{x:{grid:{display:false},ticks:{font:{size:11},color:"#9CA3AF"}},y:{grid:{color:"#F3F4F6"},ticks:{font:{size:11},color:"#9CA3AF",precision:0},beginAtZero:true}}}
   });
-  const btnRefresh = document.getElementById("btn-refresh");
-  if (btnRefresh) btnRefresh.addEventListener("click", refresh);
-  const btnDisconnect = document.getElementById("btn-disconnect");
-  if (btnDisconnect) btnDisconnect.addEventListener("click", disconnect);
+}
+
+function bind(){
+  const it=document.getElementById("it"),ii=document.getElementById("ii");
+  if(it)it.addEventListener("input",e=>{S.token=e.target.value;const b=document.getElementById("bc");if(b)b.disabled=!S.token||!S.rawId;});
+  if(ii){ii.addEventListener("input",e=>{S.rawId=e.target.value;const b=document.getElementById("bc");if(b)b.disabled=!S.token||!S.rawId;});ii.addEventListener("keydown",e=>{if(e.key==="Enter")connect();});}
+  const bc=document.getElementById("bc");if(bc)bc.addEventListener("click",connect);
+  document.querySelectorAll("[data-tab]").forEach(el=>el.addEventListener("click",()=>switchTab(el.dataset.tab)));
+  const br=document.getElementById("br");if(br)br.addEventListener("click",refresh);
+  const bd=document.getElementById("bd");if(bd)bd.addEventListener("click",disconnect);
 }
 
 render();
