@@ -20,40 +20,50 @@ export default async function handler(req, res) {
   }
 
   const metaToken = process.env.META_TOKEN;
-  const accountId = process.env.META_ACCOUNT_ID;
+  let accountId   = (process.env.META_ACCOUNT_ID || '').trim();
+
+  // Ensure act_ prefix
+  if (accountId && !accountId.startsWith('act_')) {
+    accountId = 'act_' + accountId;
+  }
 
   if (!metaToken || !accountId) {
-    return res.status(500).json({ error: 'Variables de entorno no configuradas.' });
+    return res.status(500).json({ error: 'Variables META_TOKEN o META_ACCOUNT_ID no configuradas.' });
   }
 
   const { path, ...params } = req.query;
 
-  // Batch request: ?ids=123,456&fields=...
+  // Determine final path
+  let finalPath;
   if (!path && params.ids) {
-    const url = new URL('https://graph.facebook.com/v21.0/');
-    url.searchParams.set('access_token', metaToken);
-    for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
-    try {
-      const response = await fetch(url.toString());
-      const data = await response.json();
-      return res.status(response.status).json(data);
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
+    // Batch request: GET /?ids=123,456&fields=...
+    finalPath = '';
+  } else if (!path) {
+    return res.status(400).json({ error: 'Falta el parámetro path.' });
+  } else {
+    finalPath = path.replace(/__ACCOUNT__/g, accountId);
   }
 
-  if (!path) return res.status(400).json({ error: 'Falta el parámetro path.' });
-
-  const realPath = path.replace('__ACCOUNT__', accountId);
-  const url = new URL(`https://graph.facebook.com/v21.0/${realPath}`);
+  const url = new URL(`https://graph.facebook.com/v21.0/${finalPath}`);
   url.searchParams.set('access_token', metaToken);
-  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+
+  for (const [k, v] of Object.entries(params)) {
+    // Pass values as-is; URLSearchParams handles encoding
+    url.searchParams.set(k, v);
+  }
 
   try {
     const response = await fetch(url.toString());
     const data = await response.json();
+
+    // Forward Meta rate-limit headers if present
+    const appUsage  = response.headers.get('x-app-usage');
+    const acctUsage = response.headers.get('x-ad-account-usage');
+    if (appUsage)  res.setHeader('x-app-usage', appUsage);
+    if (acctUsage) res.setHeader('x-ad-account-usage', acctUsage);
+
     return res.status(response.status).json(data);
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Error conectando con Meta: ' + err.message });
   }
 }
